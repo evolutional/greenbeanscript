@@ -1,5 +1,5 @@
-D:\Dev\greenbeanscript\GreenBeanScript\obj\Debug\GreenBeanScript.csprojResolveAssemblyReference.cache
 D:\Dev\greenbeanscript\GreenBeanScript\bin\Debug\GreenBeanScript.dll
 D:\Dev\greenbeanscript\GreenBeanScript\bin\Debug\GreenBeanScript.pdb
 D:\Dev\greenbeanscript\GreenBeanScript\obj\Debug\GreenBeanScript.dll
 D:\Dev\greenbeanscript\GreenBeanScript\obj\Debug\GreenBeanScript.pdb
+D:\Dev\greenbeanscript\GreenBeanScript\obj\Debug\GreenBeanScript.csprojResolveAssemblyReference.cache

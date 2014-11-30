@@ -16,9 +16,6 @@ namespace GreenBeanScript
 
     public class TableObject 
     {
-        internal TableObject()
-        {
-        }
 
         public Variable this[Variable Index]
         {

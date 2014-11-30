@@ -1,0 +1,28 @@
+﻿//
+//
+// HASH
+//
+//
+
+print("*** HASH ***");
+
+local n = 80000;
+
+X=table();
+for(i=1; i <= n; i=i+1)
+{
+  //print(format("%x", i), i);
+  X[format("%x", i)] = i;
+}
+
+c = 0;
+
+for(i=n; i>=1; i=i-1)
+{
+  if(X[i+""])
+  {
+    c=c+1;
+  }
+}
+
+print(c);

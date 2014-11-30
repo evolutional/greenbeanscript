@@ -7,9 +7,21 @@ namespace GreenBeanScript.Libs
     /// <summary>
     /// The GreenBean Standard library contains the standard base functions available in the default GB environment
     /// </summary>
-    internal class StdLibrary
+    public class StdLibrary
     {
         static DateTime TickTime = DateTime.Now;
+
+        private readonly Action<string> _printCallback; 
+
+        public StdLibrary()
+        {
+            _printCallback = Console.WriteLine;
+        }
+
+        public StdLibrary(Action<string> printcallback)
+        {
+            _printCallback = printcallback;
+        }
 
         /// <summary>
         /// Used to return the number of ticks since the last check
@@ -54,8 +66,7 @@ namespace GreenBeanScript.Libs
                     t += " ";
             }
 
-            // TODO: Implement a FeedbackProvider delegate to allow print to be captured by user
-            Console.WriteLine(t);
+            _printCallback(t);
             return FunctionResult.Ok;
         }
 

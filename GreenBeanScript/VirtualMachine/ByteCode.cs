@@ -6,7 +6,7 @@ namespace GreenBeanScript
 {
     namespace ByteCode
     {
-        internal enum Operator : int
+        public enum Operator : int
         {
             GetDot = 0,
             SetDot,
@@ -18,6 +18,9 @@ namespace GreenBeanScript
             OpMul,
             OpDiv,
             OpRem,
+
+            OpInc,
+            OpDec,
 
             BitOr,
             BitXor,

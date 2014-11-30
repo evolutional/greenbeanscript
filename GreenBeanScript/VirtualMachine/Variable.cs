@@ -134,7 +134,7 @@ namespace GreenBeanScript
 
         public object GetReference()
         {
-            if (TypeCode > (int)VariableType.Float)
+            if (TypeCode <= (int)VariableType.Float)
             {
                 return null;
             }
@@ -151,12 +151,23 @@ namespace GreenBeanScript
             get { return (TypeCode > (int)VariableType.Float); }
         }
 
-        public bool IsEqual(ref Variable Variable)
+        public bool IsEqual(ref Variable otherVar)
         {
-            if (Variable.Type != _Type)
+            if (otherVar.Type != _Type)
                 return false;
 
-            return Variable.GetReference() == _RefValue;
+
+            if (otherVar.Type == VariableType.Integer)
+            {
+                return GetIntegerNoCheck() == otherVar.GetIntegerNoCheck();
+            }
+
+            if (otherVar.Type == VariableType.Float)
+            {
+                return GetFloatNoCheck() == otherVar.GetFloatNoCheck();
+            }
+
+            return otherVar.GetReference().Equals(_RefValue);
         }
 
         public bool Equals(Variable obj)

@@ -1,0 +1,217 @@
+﻿GM LIBRARY D:\Dev\greenbeanscript\GreenBeanScript.Tests\ExampleScripts\matrix.gml, DEBUG=0
+
+STRING TABLE, SIZE=   21
+===============================================================================
+00000:print
+00006:*** MATRIX ***
+
+NO SOURCE CODE IN LIB
+FUNCTIONS, COUNT=3
+===============================================================================
+
+===============================================================================
+FUNCTION ID 0
+FLAGS 0
+NUM PARAMS 2
+NUM LOCALS 5
+MAX STACK 5
+BYTE CODE SIZE 276
+  0000 push int 1
+  0004 set local 2
+  0012 push tbl
+  0016 set local 3
+  0024 push int 0
+  0028 set local 4
+  0036 get local 4
+  0044 get local 0
+  0052 lt
+  0056 brz 260
+  0064 push tbl
+  0068 set local 5
+  0076 push int 0
+  0080 set local 6
+  0088 get local 6
+  0096 get local 1
+  0104 lt
+  0108 brz 200
+  0116 get local 5
+  0124 get local 6
+  0132 get local 2
+  0140 set index
+  0144 get local 2
+  0152 push int 1
+  0156 add
+  0160 set local 2
+  0168 get local 6
+  0176 push int 1
+  0180 add
+  0184 set local 6
+  0192 bra 88
+  0200 get local 3
+  0208 get local 4
+  0216 get local 5
+  0224 set index
+  0228 get local 4
+  0236 push int 1
+  0240 add
+  0244 set local 4
+  0252 bra 36
+  0260 get local 3
+  0268 retv
+  0272 ret
+
+
+===============================================================================
+FUNCTION ID 1
+FLAGS 0
+NUM PARAMS 4
+NUM LOCALS 6
+MAX STACK 7
+BYTE CODE SIZE 424
+  0000 push tbl
+  0004 set local 4
+  0012 push int 0
+  0016 set local 5
+  0024 get local 5
+  0032 get local 0
+  0040 lt
+  0044 brz 408
+  0052 get local 4
+  0060 get local 5
+  0068 push tbl
+  0072 set index
+  0076 get local 2
+  0084 get local 5
+  0092 get index
+  0096 set local 6
+  0104 push int 0
+  0108 set local 7
+  0116 get local 7
+  0124 get local 1
+  0132 lt
+  0136 brz 376
+  0144 push int 0
+  0148 set local 8
+  0156 push int 0
+  0160 set local 9
+  0168 get local 9
+  0176 get local 1
+  0184 lt
+  0188 brz 304
+  0196 get local 8
+  0204 get local 6
+  0212 get local 9
+  0220 get index
+  0224 get local 3
+  0232 get local 9
+  0240 get index
+  0244 get local 7
+  0252 get index
+  0256 mul
+  0260 add
+  0264 set local 8
+  0272 get local 9
+  0280 push int 1
+  0284 add
+  0288 set local 9
+  0296 bra 168
+  0304 get local 4
+  0312 get local 5
+  0320 get index
+  0324 get local 7
+  0332 get local 8
+  0340 set index
+  0344 get local 7
+  0352 push int 1
+  0356 add
+  0360 set local 7
+  0368 bra 116
+  0376 get local 5
+  0384 push int 1
+  0388 add
+  0392 set local 5
+  0400 bra 24
+  0408 get local 4
+  0416 retv
+  0420 ret
+
+
+===============================================================================
+FUNCTION ID 2
+FLAGS 1
+NUM PARAMS 0
+NUM LOCALS 8
+MAX STACK 7
+BYTE CODE SIZE 464
+  0000 push null
+  0004 get global 0
+  0012 push str 6
+  0020 call 1
+  0028 pop
+  0032 push int 300
+  0040 set local 0
+  0048 push int 30
+  0056 set local 1
+  0064 push fn 0
+  0072 set local 2
+  0080 push fn 1
+  0088 set local 3
+  0096 push null
+  0100 get local 2
+  0108 get local 1
+  0116 get local 1
+  0124 call 2
+  0132 set local 4
+  0140 push null
+  0144 get local 2
+  0152 get local 1
+  0160 get local 1
+  0168 call 2
+  0176 set local 5
+  0184 push int 0
+  0188 set local 6
+  0196 get local 6
+  0204 get local 0
+  0212 lt
+  0216 brz 316
+  0224 push null
+  0228 get local 3
+  0236 get local 1
+  0244 get local 1
+  0252 get local 4
+  0260 get local 5
+  0268 call 4
+  0276 set local 7
+  0284 get local 6
+  0292 push int 1
+  0296 add
+  0300 set local 6
+  0308 bra 196
+  0316 push null
+  0320 get global 0
+  0328 get local 7
+  0336 push int 0
+  0340 get index
+  0344 push int 0
+  0348 get index
+  0352 get local 7
+  0360 push int 2
+  0368 get index
+  0372 push int 3
+  0380 get index
+  0384 get local 7
+  0392 push int 3
+  0400 get index
+  0404 push int 2
+  0412 get index
+  0416 get local 7
+  0424 push int 4
+  0432 get index
+  0436 push int 4
+  0444 get index
+  0448 call 4
+  0456 pop
+  0460 ret
+
+
+END LIB

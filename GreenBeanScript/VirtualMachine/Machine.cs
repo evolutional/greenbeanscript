@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using System.Text;
+using GreenBeanScript.Libs;
 
 namespace GreenBeanScript
 {
@@ -15,8 +16,7 @@ namespace GreenBeanScript
         internal Libs.StdLibrary _StandardLibary;
 
 
-
-        public Machine()
+        public Machine(StdLibrary stdlibrary)
         {
             _NextTypeId = (int)VariableType.UserType;
             _Functions = new List<FunctionObject>();
@@ -25,12 +25,15 @@ namespace GreenBeanScript
             _Globals = CreateTable();
             //
             InitialiseDefaultTypes();
-            
+
 
             // Bind standard library to machine
-            _StandardLibary = new Libs.StdLibrary();
-            _StandardLibary.RegisterLibrary(this);
+            _StandardLibary = stdlibrary;
+            stdlibrary.RegisterLibrary(this);
 
+        }
+        public Machine() : this(new StdLibrary())
+        {
         }
 
         #region Create Object Methods

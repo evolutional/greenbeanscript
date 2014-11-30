@@ -438,7 +438,8 @@ namespace GreenBeanScript
                                 throw new Exception("String required");
                             }
                             string GlobalName = v1.GetString();
-                            _Stack2[_Top++] = _Machine.Globals[v1];
+                            var global = _Machine.Globals[v1];
+                            _Stack2[_Top++] = global;
                             break;
                         }
 

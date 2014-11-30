@@ -1,0 +1,242 @@
+﻿GM LIBRARY D:\Dev\greenbeanscript\GreenBeanScript.Tests\ExampleScripts\heapsort.gml, DEBUG=0
+
+STRING TABLE, SIZE=   37
+===============================================================================
+00000:print
+00006:*** HEAPSORT ***
+00023:IM
+00026:IA
+00029:IC
+00032:LAST
+
+NO SOURCE CODE IN LIB
+FUNCTIONS, COUNT=3
+===============================================================================
+
+===============================================================================
+FUNCTION ID 0
+FLAGS 0
+NUM PARAMS 1
+NUM LOCALS 0
+MAX STACK 2
+BYTE CODE SIZE 92
+  0000 get global 32
+  0008 get global 26
+  0016 mul
+  0020 get global 29
+  0028 add
+  0032 get global 23
+  0040 rem
+  0044 set global 32
+  0052 get local 0
+  0060 get global 32
+  0068 mul
+  0072 get global 23
+  0080 div
+  0084 retv
+  0088 ret
+
+
+===============================================================================
+FUNCTION ID 1
+FLAGS 0
+NUM PARAMS 2
+NUM LOCALS 5
+MAX STACK 6
+BYTE CODE SIZE 668
+  0000 get local 0
+  0008 push int 2
+  0016 div
+  0020 push int 1
+  0024 add
+  0028 set local 2
+  0036 get local 0
+  0044 set local 3
+  0052 get local 2
+  0060 push int 1
+  0064 gt
+  0068 brz 136
+  0076 get local 2
+  0084 push int 1
+  0088 sub
+  0092 set local 2
+  0100 get local 1
+  0108 get local 2
+  0116 get index
+  0120 set local 4
+  0128 bra 276
+  0136 get local 1
+  0144 get local 3
+  0152 get index
+  0156 set local 4
+  0164 get local 1
+  0172 get local 3
+  0180 get local 1
+  0188 push int 1
+  0192 get index
+  0196 set index
+  0200 get local 3
+  0208 push int 1
+  0212 sub
+  0216 set local 3
+  0224 get local 3
+  0232 push int 1
+  0236 eq
+  0240 brz 276
+  0248 get local 1
+  0256 push int 1
+  0260 get local 4
+  0268 set index
+  0272 ret
+  0276 get local 2
+  0284 set local 5
+  0292 get local 2
+  0300 push int 2
+  0308 mul
+  0312 set local 6
+  0320 get local 6
+  0328 get local 3
+  0336 lte
+  0340 brz 628
+  0348 get local 6
+  0356 get local 3
+  0364 lt
+  0368 brzk 432
+  0376 pop
+  0380 get local 1
+  0388 get local 6
+  0396 get index
+  0400 get local 1
+  0408 get local 6
+  0416 push int 1
+  0420 add
+  0424 get index
+  0428 lt
+  0432 brz 464
+  0440 get local 6
+  0448 push int 1
+  0452 add
+  0456 set local 6
+  0464 get local 4
+  0472 get local 1
+  0480 get local 6
+  0488 get index
+  0492 lt
+  0496 brz 596
+  0504 get local 1
+  0512 get local 5
+  0520 get local 1
+  0528 get local 6
+  0536 get index
+  0540 set index
+  0544 get local 6
+  0552 set local 5
+  0560 get local 6
+  0568 get local 5
+  0576 add
+  0580 set local 6
+  0588 bra 620
+  0596 get local 3
+  0604 push int 1
+  0608 add
+  0612 set local 6
+  0620 bra 320
+  0628 get local 1
+  0636 get local 5
+  0644 get local 4
+  0652 set index
+  0656 bra 52
+  0664 ret
+
+
+===============================================================================
+FUNCTION ID 2
+FLAGS 1
+NUM PARAMS 0
+NUM LOCALS 5
+MAX STACK 6
+BYTE CODE SIZE 372
+  0000 push null
+  0004 get global 0
+  0012 push str 6
+  0020 call 1
+  0028 pop
+  0032 push fp 139968.000000
+  0040 set global 23
+  0048 push fp 3877.000000
+  0056 set global 26
+  0064 push fp -651926382308969260000000.000000
+  0072 ERROR
+  0076 ERROR
+  0080 ERROR
+  0084 ERROR
+  0088 ERROR
+  0092 ERROR
+  0096 ERROR
+  0100 get dot 13312
+  0108 get dot 12544
+  0116 ERROR
+  0120 ERROR
+  0124 ERROR
+  0128 ERROR
+  0132 ERROR
+  0136 ERROR
+  0140 ERROR
+  0144 ERROR
+  0148 ERROR
+  0152 ERROR
+  0156 ERROR
+  0160 ERROR
+  0164 ERROR
+  0168 ERROR
+  0172 ERROR
+  0176 ERROR
+  0180 ERROR
+  0184 ERROR
+  0188 ERROR
+  0192 ERROR
+  0196 ERROR
+  0200 ERROR
+  0204 ERROR
+  0208 ERROR
+  0212 ERROR
+  0216 ERROR
+  0220 get dot 11776
+  0228 ERROR
+  0232 ERROR
+  0236 ERROR
+  0240 ERROR
+  0244 ERROR
+  0248 ERROR
+  0252 ERROR
+  0256 ERROR
+  0260 ERROR
+  0264 ERROR
+  0268 ERROR
+  0272 ERROR
+  0276 ERROR
+  0280 ERROR
+  0284 ERROR
+  0288 ERROR
+  0292 ERROR
+  0296 ERROR
+  0300 ERROR
+  0304 ERROR
+  0308 ERROR
+  0312 ERROR
+  0316 ERROR
+  0320 ERROR
+  0324 get dot 13056
+  0332 ERROR
+  0336 ERROR
+  0340 ERROR
+  0344 ERROR
+  0348 ERROR
+  0352 ERROR
+  0356 ERROR
+  0360 ERROR
+  0364 ERROR
+  0368 ERROR
+
+
+END LIB

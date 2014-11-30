@@ -1,0 +1,81 @@
+﻿GM LIBRARY D:\Dev\greenbeanscript\GreenBeanScript.Tests\ExampleScripts\hash.gml, DEBUG=0
+
+STRING TABLE, SIZE=   30
+===============================================================================
+00000:print
+00006:*** HASH ***
+00019:format
+00026:%x
+00029:
+
+NO SOURCE CODE IN LIB
+FUNCTIONS, COUNT=1
+===============================================================================
+
+===============================================================================
+FUNCTION ID 0
+FLAGS 1
+NUM PARAMS 0
+NUM LOCALS 4
+MAX STACK 6
+BYTE CODE SIZE 372
+  0000 push null
+  0004 get global 0
+  0012 push str 6
+  0020 call 1
+  0028 pop
+  0032 push int 80000
+  0040 set local 0
+  0048 push tbl
+  0052 set local 1
+  0060 push int 1
+  0064 set local 2
+  0072 get local 2
+  0080 get local 0
+  0088 lte
+  0092 brz 188
+  0100 get local 1
+  0108 push null
+  0112 get global 19
+  0120 push str 26
+  0128 get local 2
+  0136 call 2
+  0144 get local 2
+  0152 set index
+  0156 get local 2
+  0164 push int 1
+  0168 add
+  0172 set local 2
+  0180 bra 72
+  0188 push int 0
+  0192 set local 3
+  0200 get local 0
+  0208 set local 2
+  0216 get local 2
+  0224 push int 1
+  0228 gte
+  0232 brz 336
+  0240 get local 1
+  0248 get local 2
+  0256 push str 29
+  0264 add
+  0268 get index
+  0272 brz 304
+  0280 get local 3
+  0288 push int 1
+  0292 add
+  0296 set local 3
+  0304 get local 2
+  0312 push int 1
+  0316 sub
+  0320 set local 2
+  0328 bra 216
+  0336 push null
+  0340 get global 0
+  0348 get local 3
+  0356 call 1
+  0364 pop
+  0368 ret
+
+
+END LIB

@@ -8,7 +8,7 @@ using System.Diagnostics;
 namespace GreenBeanScript
 {
 
-    internal struct gmlHeader
+    internal class gmlHeader
     {
         public Int32 id;
         public Int32 flags;
@@ -17,18 +17,8 @@ namespace GreenBeanScript
         public Int32 fnOffset;
     };
 
-    internal struct gmlStrings
-    {
-        public UInt32 size;
-    };
 
-    internal struct gmlSource
-    {
-        public UInt32 size;
-        public UInt32 flags;
-    };
-
-    internal struct gmlFunction
+    internal class gmlFunction
     {
         public UInt32 func;
         public UInt32 id;
@@ -39,11 +29,50 @@ namespace GreenBeanScript
         public UInt32 byteCodeLen;
     };
 
-    internal struct gmlLineInfo
+    internal class gmlLineInfo
     {
-        public UInt32 byteCoderAddress;
+        public UInt32 byteCodeAddress;
         public UInt32 lineNumber;
     };
+
+
+    internal class StringTableIem
+    {
+        public int Id { get; set; }
+        public int Offset { get; set; }
+        public string Value { get; set; }
+    }
+
+    internal class StringTable
+    {
+        private readonly Dictionary<int, StringTableIem> _offsets;
+        private readonly Dictionary<int, StringTableIem> _strings;
+        private int _dataSize;
+        public StringTable()
+        {
+            _offsets = new Dictionary<int, StringTableIem>();
+            _strings = new Dictionary<int, StringTableIem>();
+        }
+
+        public int Count { get { return _strings.Count; } }
+        public int Size { get { return _dataSize; } }
+        public void Add(StringTableIem stringTableIem)
+        {
+            _strings.Add(stringTableIem.Id, stringTableIem);
+            _offsets.Add(stringTableIem.Offset, stringTableIem);
+            _dataSize += stringTableIem.Value.Length + 1;
+        }
+
+        public StringTableIem GetByOffset(int offset)
+        {
+            return _offsets[offset];
+        }
+        
+        public StringTableIem GetById(int id)
+        {
+            return _strings[id];
+        }
+    }
 
     public class Library
     {
@@ -65,83 +94,301 @@ namespace GreenBeanScript
             get { return _MainFunctionId; }
         }
 
-        public bool Load(Machine Machine, string FileName)
+        public bool LoadFromFile(Machine Machine, string FileName)
         {
-            BinaryReader GmLibData = new BinaryReader(File.OpenRead(FileName));
-            gmlHeader header = new gmlHeader();
-            gmlStrings strings = new gmlStrings();
-            gmlSource source = new gmlSource();
-            gmlFunction function;
+            return Load(Machine, File.OpenRead(FileName));
+        }
 
-            List<FunctionObject> functionObjects = new List<FunctionObject>();
+        public void ListLibraryFromFile(StringBuilder log, string libFileName)
+        {
+            List(libFileName, File.OpenRead(libFileName), log);
+        }
 
-            UInt32 numFunctions = 0;
+        public void List(string libFileName, Stream fileStream, StringBuilder log)
+        {
+            var data = new BinaryReader(fileStream);
 
-            /// Load Header
-            header.id = GmLibData.ReadInt32();
-            header.flags = GmLibData.ReadInt32();
-            header.stOffset = GmLibData.ReadInt32();
-            header.scOffset = GmLibData.ReadInt32();
-            header.fnOffset = GmLibData.ReadInt32();
+            // Load Header
+            var header = ReadHeader(data);
 
-            /// Load string table
-            strings.size = GmLibData.ReadUInt32();
-            char[] stringTable = GmLibData.ReadChars((int)strings.size);
-            string[] st = new string[strings.size];
-            Dictionary<uint, uint> stringTabOffset = new Dictionary<uint, uint>();
+            var debug = (header.flags & 1);
+            log.AppendFormat("GM LIBRARY {0}, DEBUG={1}\r\n\r\n", Path.GetFullPath(libFileName), debug);
+
+            // Load string table
+            var stringTable = ReadStringTable(data);
+
+            log.AppendFormat("STRING TABLE, SIZE={0}\r\n" +
+                             "===============================================================================\r\n", stringTable.Size.ToString().PadLeft(5));
+
+
+            for (var i = 0; i < stringTable.Count; ++i)
+            {
+                var str = stringTable.GetById(i);
+                // "%05d:%s\n", i+1,&stringTable[i+1]
+                log.AppendFormat("{0:D5}:{1}\r\n", str.Offset, str.Value);
+            }
+
+            log.Append("\r\nNO SOURCE CODE IN LIB\r\n");
+
+            // Jump to offset of functions
+            data.BaseStream.Seek(header.fnOffset, SeekOrigin.Begin);
+            // read number of functions
+            var numFunctions = data.ReadUInt32();
+
+            log.AppendFormat("FUNCTIONS, COUNT={0}\r\n" +
+                             "===============================================================================\r\n\r\n", numFunctions);
+
+            for (var i = 0; i < numFunctions; ++i)
+            {
+                ListFunction(data, log);
+            }
+
+            log.Append("END LIB\r\n");
+        }
+
+        private void ListFunction(BinaryReader data, StringBuilder log)
+        {
+            log.Append("===============================================================================\r\n");
+
+            var function = ReadFunction(data);
+
+            log.AppendFormat("FUNCTION ID {0}\r\n", function.id);
+            log.AppendFormat("FLAGS {0}\r\n", function.flags);
+            log.AppendFormat("NUM PARAMS {0}\r\n", function.numParams);
+            log.AppendFormat("NUM LOCALS {0}\r\n", function.numLocals);
+            log.AppendFormat("MAX STACK {0}\r\n", function.maxStackSize);
+            log.AppendFormat("BYTE CODE SIZE {0}\r\n", function.byteCodeLen);
+
+            var byteCode = ReadByteCode(data, (int)function.byteCodeLen);
+
+            ListBytecode(byteCode, log);
+
+            log.Append("\r\n\r\n");
+        }
+
+        private void ListBytecode(byte[] byteCode, StringBuilder log)
+        {
+            var instruction = 0;
+            var start = 0;
+            var end = byteCode.Length;
+
+            while (instruction < end)
+            {
+                var opiptr = false;
+                var opf32 = false;
+                var opisymbol = false;
+                var cp = "";
+
+                int addr = instruction - start;
+
+                var bc = BitConverter.ToUInt32(byteCode, instruction);
+
+                switch ((ByteCode.Operator)bc)
+                {
+                  case ByteCode.Operator.Nop : cp = "nop"; break;
+                  case ByteCode.Operator.Line : cp = "line"; break;
+
+                  case ByteCode.Operator.GetDot : cp = "get dot"; opiptr = true; break;
+                  case ByteCode.Operator.SetDot : cp = "set dot"; opiptr = true; break;
+                  case ByteCode.Operator.GetInd : cp = "get index"; break;
+                  case ByteCode.Operator.SetInd : cp = "set index"; break;
+
+                  case ByteCode.Operator.Bra : cp = "bra"; opiptr = true; break;
+                  case ByteCode.Operator.Brz : cp = "brz"; opiptr = true; break;
+                  case ByteCode.Operator.Brnz : cp = "brnz"; opiptr = true; break;
+                  case ByteCode.Operator.Brzk : cp = "brzk"; opiptr = true; break;
+                  case ByteCode.Operator.Brnzk : cp = "brnzk"; opiptr = true; break;
+                  case ByteCode.Operator.Call : cp = "call"; opiptr = true; break;
+                  case ByteCode.Operator.Ret : cp = "ret"; break;
+                  case ByteCode.Operator.Retv : cp = "retv"; break;
+                  case ByteCode.Operator.ForEach : cp = "foreach"; opiptr = true; break;
+      
+                  case ByteCode.Operator.Pop : cp = "pop"; break;
+                  case ByteCode.Operator.Pop2 : cp = "pop2"; break;
+                  case ByteCode.Operator.Dup : cp = "dup"; break;
+                  case ByteCode.Operator.Dup2 : cp = "dup2"; break;
+                  case ByteCode.Operator.Swap : cp = "swap"; break;
+                  case ByteCode.Operator.PushNull : cp = "push null"; break;
+                  case ByteCode.Operator.PushInt : cp = "push int"; opiptr = true; break;
+                  case ByteCode.Operator.PushInt0 : cp = "push int 0"; break;
+                  case ByteCode.Operator.PushInt1 : cp = "push int 1"; break;
+                  case ByteCode.Operator.PushFp : cp = "push fp"; opf32 = true; break;
+                  case ByteCode.Operator.PushStr : cp = "push str"; opiptr = true; break;
+                  case ByteCode.Operator.PushTbl : cp = "push tbl"; break;
+                  case ByteCode.Operator.PushFn : cp = "push fn"; opiptr = true; break;
+                  case ByteCode.Operator.PushThis : cp = "push this"; break;
+      
+                  case ByteCode.Operator.GetLocal : cp = "get local"; opiptr = true; break;
+                  case ByteCode.Operator.SetLocal : cp = "set local"; opiptr = true; break;
+                  case ByteCode.Operator.GetGlobal : cp = "get global"; opiptr = true; break;
+                  case ByteCode.Operator.SetGlobal : cp = "set global"; opiptr = true; break;
+                  case ByteCode.Operator.GetThis : cp = "get this"; opiptr = true; break;
+                  case ByteCode.Operator.SetThis : cp = "set this"; opiptr = true; break;
+      
+                  case ByteCode.Operator.OpAdd : cp = "add"; break;
+                  case ByteCode.Operator.OpSub : cp = "sub"; break;
+                  case ByteCode.Operator.OpMul : cp = "mul"; break;
+                  case ByteCode.Operator.OpDiv : cp = "div"; break;
+                  case ByteCode.Operator.OpRem : cp = "rem"; break;
+         
+                  case ByteCode.Operator.OpInc : cp = "inc"; break;
+                  case ByteCode.Operator.OpDec : cp = "dec"; break;
+  
+
+                  case ByteCode.Operator.BitOr : cp = "bor"; break;
+                  case ByteCode.Operator.BitXor : cp = "bxor"; break;
+                  case ByteCode.Operator.BitAnd : cp = "band"; break;
+                  case ByteCode.Operator.BitInv : cp = "binv"; break;
+                  case ByteCode.Operator.BitShl : cp = "bshl"; break;
+                  case ByteCode.Operator.BitShr : cp = "bshr"; break;
+      
+                  case ByteCode.Operator.OpNeg : cp = "neg"; break;
+                  case ByteCode.Operator.OpPos : cp = "pos"; break;
+                  case ByteCode.Operator.OpNot : cp = "not"; break;
+      
+                  case ByteCode.Operator.OpLt : cp = "lt"; break;
+                  case ByteCode.Operator.OpGt : cp = "gt"; break;
+                  case ByteCode.Operator.OpLte : cp = "lte"; break;
+                  case ByteCode.Operator.OpGte : cp = "gte"; break;
+                  case ByteCode.Operator.OpEq : cp = "eq"; break;
+                  case ByteCode.Operator.OpNeq : cp = "neq"; break;
+
+                  //case ByteCode.Operator.Fork: cp = "fork"; opiptr = true; break;
+                  default : cp = "ERROR"; break;
+                }
+
+                instruction += 4;
+
+                if(opf32)
+                {
+                    var val = BitConverter.ToSingle(byteCode, instruction);
+                    instruction += 4;
+                    log.AppendFormat("  {0:D4} {1} {2:F6}\r\r\n", addr, cp, val);
+                }
+                else if (opiptr)
+                {
+                    var val = BitConverter.ToInt32(byteCode, instruction);
+                    instruction += 4;
+                    log.AppendFormat("  {0:D4} {1} {2}\r\r\n", addr, cp, val);
+                }
+                else
+                {
+                    log.AppendFormat("  {0:D4} {1}\r\r\n", addr, cp);
+                }
+
+            }
+        }
+
+        private byte[] ReadByteCode(BinaryReader data, int bytecodeLength)
+        {
+            return data.ReadBytes(bytecodeLength);
+        }
+
+        private gmlHeader ReadHeader(BinaryReader data)
+        {
+            var header = new gmlHeader();
+            header.id = data.ReadInt32();
+            header.flags = data.ReadInt32();
+            header.stOffset = data.ReadInt32();
+            header.scOffset = data.ReadInt32();
+            header.fnOffset = data.ReadInt32();
+            return header;
+        }
+
+        private StringTable ReadStringTable(BinaryReader data)
+        {
+            var numStrings = data.ReadUInt32();
+            var stringTab = new StringTable();
+
+            char[] stringTable = data.ReadChars((int)numStrings);
             StringBuilder sb = new StringBuilder();
             uint stringid = 0;
             uint li = 0;
-            for (uint i = 0; i < strings.size - 1; ++i)
+            for (uint i = 0; i < numStrings - 1; ++i)
             {
                 if (stringTable[i] == 0)
                 {
-                    st[stringid] = sb.ToString();
-                    stringTabOffset.Add(li, stringid); li = i+1;
+                    stringTab.Add(new StringTableIem { Id = (int)stringid, Offset = (int)li, Value = sb.ToString() });
                     sb = new StringBuilder();
                     ++stringid;
+                    li = i + 1;
                 }
                 else
                 {
                     sb.Append(stringTable[i]);
                 }
             }
-            st[stringid] = sb.ToString();
-            stringTabOffset.Add(li, stringid);
+
+            stringTab.Add(new StringTableIem {Id = (int)stringid, Offset = (int)li, Value = sb.ToString()});
+
+            return stringTab;
+        }
+
+        private gmlFunction ReadFunction(BinaryReader data)
+        {
+            // Read out function entry
+            var function = new gmlFunction();
+            function.func = data.ReadUInt32();
+            function.id = data.ReadUInt32();
+            function.flags = data.ReadUInt32();
+            function.numParams = data.ReadUInt32();
+            function.numLocals = data.ReadUInt32();
+            function.maxStackSize = data.ReadUInt32();
+            function.byteCodeLen = data.ReadUInt32();
+            return function;
+        }
+
+        public bool Load(Machine Machine, Stream fileStream)
+        {
+            var data = new BinaryReader(fileStream);
+            
+            gmlFunction function;
+
+            List<FunctionObject> functionObjects = new List<FunctionObject>();
+
+            UInt32 numFunctions = 0;
+
+            // Load Header
+            var header = ReadHeader(data);
+
+            // Load string table
+            var stringTable = ReadStringTable(data);
+
             Debug.Assert(header.scOffset == 0); // Can't handle included sourcecode for now
             
             // Jump to offset of functions
-            GmLibData.BaseStream.Seek(header.fnOffset, SeekOrigin.Begin);
+            data.BaseStream.Seek(header.fnOffset, SeekOrigin.Begin);
             // read number of functions
-            numFunctions = GmLibData.ReadUInt32();
+            numFunctions = data.ReadUInt32();
 
             for (int i = 0; i < numFunctions; ++i)
             {
                 // Read out function entry
                 function = new gmlFunction();
-                function.func = GmLibData.ReadUInt32();
-                function.id = GmLibData.ReadUInt32();
-                function.flags = GmLibData.ReadUInt32();
-                function.numParams = GmLibData.ReadUInt32();
-                function.numLocals = GmLibData.ReadUInt32();
-                function.maxStackSize = GmLibData.ReadUInt32();
-                function.byteCodeLen = GmLibData.ReadUInt32();
+                function.func = data.ReadUInt32();
+                function.id = data.ReadUInt32();
+                function.flags = data.ReadUInt32();
+                function.numParams = data.ReadUInt32();
+                function.numLocals = data.ReadUInt32();
+                function.maxStackSize = data.ReadUInt32();
+                function.byteCodeLen = data.ReadUInt32();
 
                 if (function.flags == 1)
                     _MainFunctionId = i;
 
-                byte[] bytecode = GmLibData.ReadBytes((int)function.byteCodeLen);
+                byte[] bytecode = data.ReadBytes((int)function.byteCodeLen);
                 uint end = function.byteCodeLen;
                 List<ByteCode.Instruction> InstructionList = new List<ByteCode.Instruction>();
 
                 for (int instruction = 0; instruction < end; )
                 {
-                    ByteCode.Operator instr = (ByteCode.Operator)bytecode[instruction];
+                    ByteCode.Operator instr = (ByteCode.Operator)BitConverter.ToUInt32(bytecode, instruction);
                     int bytecodeoffset = instruction;
                     instruction += 4;
                     switch (instr)
                     {
                         #region Operators
+                        case ByteCode.Operator.OpRem:
                         case ByteCode.Operator.OpAdd:
                         case ByteCode.Operator.OpDiv:
                         case ByteCode.Operator.OpEq:
@@ -163,9 +410,8 @@ namespace GreenBeanScript
                             {
                                 uint reference = System.BitConverter.ToUInt32(bytecode, instruction);
                                 instruction += sizeof(uint);
-                                uint offset = stringTabOffset[reference];
-                                string s = st[offset];
-                                InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset, new Variable[] { new Variable(s) }));
+                                var s = stringTable.GetByOffset((int)reference);
+                                InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset, new Variable[] { new Variable(s.Value) }));
                                 break;
                             }
                         #endregion
@@ -173,7 +419,7 @@ namespace GreenBeanScript
                         case ByteCode.Operator.Retv:
                         case ByteCode.Operator.Dup:
                         case ByteCode.Operator.Pop:
-                        case ByteCode.Operator.Pop2:
+                        case ByteCode.Operator.Pop2:                        
                             {
                                 InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset));
                                 break;
@@ -212,12 +458,12 @@ namespace GreenBeanScript
                             {
                                 uint reference = BitConverter.ToUInt32(bytecode, instruction);
                                 instruction += sizeof(int);
-                                uint offset = stringTabOffset[reference];
-                                string s = st[offset];
-                                InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset, new Variable[] { new Variable(s) }));
+                                var s = stringTable.GetByOffset((int)reference);
+                                InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset, new Variable[] { new Variable(s.Value) }));
                                 break;
                             }
                         #region Branch
+                        case ByteCode.Operator.Brzk:
                         case ByteCode.Operator.Brz:
                         case ByteCode.Operator.Bra:
                             {
@@ -269,9 +515,8 @@ namespace GreenBeanScript
                             {
                                 uint reference = System.BitConverter.ToUInt32(bytecode, instruction);
                                 instruction += sizeof(uint);
-                                uint offset = stringTabOffset[reference];
-                                string s = st[offset];
-                                InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset, new Variable[] { new Variable(s) }));
+                                var s = stringTable.GetByOffset((int)reference);
+                                InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset, new Variable[] { new Variable(s.Value) }));
                                 break;
                             }
 
@@ -286,7 +531,7 @@ namespace GreenBeanScript
                         #endregion
                         default:
                             {
-                                throw new Exception("Invalid function");
+                                throw new Exception("Invalid opcode " +  instr.ToString());
                             }
 
                     };  // end of switch
@@ -329,9 +574,10 @@ namespace GreenBeanScript
             }
 
             _Functions = functionObjects;
-            GmLibData.Close();
+            data.Close();
             return true;
         }
 
+        
     }
 }

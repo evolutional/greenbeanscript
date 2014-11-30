@@ -1,0 +1,70 @@
+﻿GM LIBRARY D:\Dev\greenbeanscript\GreenBeanScript.Tests\ExampleScripts\fib.gml, DEBUG=0
+
+STRING TABLE, SIZE=   22
+===============================================================================
+00000:print
+00006:*** FIB ***
+00018:fib
+
+NO SOURCE CODE IN LIB
+FUNCTIONS, COUNT=2
+===============================================================================
+
+===============================================================================
+FUNCTION ID 0
+FLAGS 0
+NUM PARAMS 1
+NUM LOCALS 0
+MAX STACK 6
+BYTE CODE SIZE 124
+  0000 get local 0
+  0008 push int 2
+  0016 lt
+  0020 brz 36
+  0028 push int 1
+  0032 retv
+  0036 push null
+  0040 get global 18
+  0048 get local 0
+  0056 push int 2
+  0064 sub
+  0068 call 1
+  0076 push null
+  0080 get global 18
+  0088 get local 0
+  0096 push int 1
+  0100 sub
+  0104 call 1
+  0112 add
+  0116 retv
+  0120 ret
+
+
+===============================================================================
+FUNCTION ID 1
+FLAGS 1
+NUM PARAMS 0
+NUM LOCALS 1
+MAX STACK 5
+BYTE CODE SIZE 120
+  0000 push null
+  0004 get global 0
+  0012 push str 6
+  0020 call 1
+  0028 pop
+  0032 push fn 0
+  0040 set global 18
+  0048 push int 32
+  0056 set local 0
+  0064 push null
+  0068 get global 0
+  0076 push null
+  0080 get global 18
+  0088 get local 0
+  0096 call 1
+  0104 call 1
+  0112 pop
+  0116 ret
+
+
+END LIB
