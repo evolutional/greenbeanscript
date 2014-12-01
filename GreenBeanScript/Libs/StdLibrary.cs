@@ -44,29 +44,18 @@ namespace GreenBeanScript.Libs
         /// <returns></returns>
         protected FunctionResult PrintFunction(Thread ScriptThread)
         {
-            string t = string.Empty;
+            var sb = new StringBuilder();
             for (int paramid = 0; paramid < ScriptThread.ParameterCount; ++paramid)
             {
                 Variable p = ScriptThread.Param(paramid);
 
-                if (p.Type == VariableType.Integer)
-                {
-                    t += p.GetInteger().ToString();
-                }
-                else if (p.Type == VariableType.String)
-                {
-                    t += p.GetString();
-                }
-                else if (p.Type == VariableType.Float)
-                {
-                    t += p.GetFloat();
-                }
+                sb.Append(p.ToString());
 
                 if (paramid < ScriptThread.ParameterCount - 1)
-                    t += " ";
+                    sb.Append(" ");
             }
 
-            _printCallback(t);
+            _printCallback(sb.ToString());
             return FunctionResult.Ok;
         }
 

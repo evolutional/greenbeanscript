@@ -167,7 +167,6 @@ namespace GreenBeanScript
 
             _Function = this.Function;
             _Function.GetInstructions(ref _InstructionList);
-         
             return ThreadState.Running;
         }
 
@@ -652,7 +651,14 @@ namespace GreenBeanScript
                             var v = _Stack2[--_Top];
                             if (v.IsZero)
                             {
-                                _InstructionPtr = Inst[0].GetInteger();
+                                var newIp = Inst[0].GetInteger();
+
+                                if (newIp >= _InstructionList.Length)
+                                {
+                                    throw new Exception("BRZ: Corrupt IP");
+                                }
+
+                                _InstructionPtr = newIp;
                             }
                             break;
                         }
@@ -661,7 +667,14 @@ namespace GreenBeanScript
                             var v = _Stack2[--_Top];
                             if (!v.IsZero)
                             {
-                                _InstructionPtr = Inst[0].GetInteger();
+                                var newIp = Inst[0].GetInteger();
+
+                                if (newIp >= _InstructionList.Length)
+                                {
+                                    throw new Exception("BRZ: Corrupt IP");
+                                }
+
+                                _InstructionPtr = newIp;
                             }
                             break;
                         }
@@ -670,7 +683,14 @@ namespace GreenBeanScript
                             var v = _Stack2[_Top - 1];
                             if (v.IsZero)
                             {
-                                _InstructionPtr = Inst[0].GetInteger();
+                                var newIp = Inst[0].GetInteger();
+
+                                if (newIp >= _InstructionList.Length)
+                                {
+                                    throw new Exception("BRZ: Corrupt IP");
+                                }
+
+                                _InstructionPtr = newIp;
                             }
                             break;
                         }
@@ -679,13 +699,27 @@ namespace GreenBeanScript
                             var v = _Stack2[_Top - 1];
                             if (!v.IsZero)
                             {
-                                _InstructionPtr = Inst[0].GetInteger();
+                                var newIp = Inst[0].GetInteger();
+
+                                if (newIp >= _InstructionList.Length)
+                                {
+                                    throw new Exception("BRNZK: Corrupt IP");
+                                }
+
+                                _InstructionPtr = newIp;
                             }
                             break;
                         }
                     case ByteCode.Operator.Bra:
                         {
-                            _InstructionPtr = Inst[0].GetInteger();
+                            var newIp = Inst[0].GetInteger();
+
+                            if (newIp >= _InstructionList.Length)
+                            {
+                                throw new Exception("BRA: Corrupt IP");
+                            }
+
+                            _InstructionPtr = newIp;
                             break;
                         }
                     #endregion

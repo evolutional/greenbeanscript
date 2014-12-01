@@ -112,15 +112,25 @@ namespace GreenBeanScript
 
         public int GetInteger()
         {
+            if (IsNull)
+            {
+                return 0;
+            }
+
             if (!IsInt)
             {
                 throw new Exception("Invalid cast");
             }
+
             return (int)_RefValue;
         }
 
         public float GetFloat()
         {
+            if (IsNull)
+            {
+                return 0;
+            }
             if (IsFloat)
             {
                 return (float)_RefValue;

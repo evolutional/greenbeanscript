@@ -135,11 +135,6 @@ namespace GreenBeanScript
             thread.Execute();
         }
 
-        public void ExecuteString(string Script)
-        {
-            throw new NotImplementedException();
-        }
-
         public int Execute(float Delta)
         {
             // Todo: Handle waking up threads

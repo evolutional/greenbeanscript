@@ -33,29 +33,38 @@ namespace GreenBeanScript
 
         public void Set(ref Variable Key, ref Variable Value)
         {
-            
-            if (Key.Type == VariableType.Integer)
+            if (Key.IsInt)
             {
                 if (Value.IsNull)
+                {
                     _IndexedItems.Remove(Key.GetIntegerNoCheck());
+                }
                 else
+                {
                     _IndexedItems[Key.GetIntegerNoCheck()] = Value;
+                }
+
+                return;
             }
 
             if (Value.IsNull)
+            {
                 _HashedItems.Remove(Key);
+            }
             else
+            {
                 _HashedItems[Key] = Value;
+            }
 
         }
 
         public Variable Get(ref Variable Key)
         {
             if (Key.IsNull)
-                return Key;
+                return new Variable();
 
             Variable ret;
-            if (Key.Type == VariableType.Integer)
+            if (Key.IsInt)
             {                
                 if (_IndexedItems.TryGetValue(Key.GetIntegerNoCheck(),out ret))
                 {

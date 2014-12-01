@@ -80,10 +80,12 @@
     <Content Include="LegacyApprovalTests.CompiledFib.approved.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="LegacyApprovalTests.CompiledFloat.approved.txt" />
     <Content Include="LegacyApprovalTests.CompiledHash.approved.txt" />
     <Content Include="LegacyApprovalTests.CompiledHeapsort.approved.txt" />
     <Content Include="LegacyApprovalTests.CompiledMatrix.approved.txt" />
     <Content Include="LegacyApprovalTests.ListCompiledFib.approved.txt" />
+    <Content Include="LegacyApprovalTests.ListCompiledFloat.approved.txt" />
     <Content Include="LegacyApprovalTests.ListCompiledHash.approved.txt" />
     <Content Include="LegacyApprovalTests.ListCompiledHeapsort.approved.txt" />
     <Content Include="LegacyApprovalTests.ListCompiledMatrix.approved.txt" />

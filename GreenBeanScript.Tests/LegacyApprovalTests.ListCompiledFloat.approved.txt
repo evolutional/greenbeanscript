@@ -1,0 +1,31 @@
+﻿GM LIBRARY D:\Dev\greenbeanscript\GreenBeanScript.Tests\ExampleScripts\float.gml, DEBUG=0
+
+STRING TABLE, SIZE=    9
+===============================================================================
+00000:IC
+00003:print
+
+NO SOURCE CODE IN LIB
+FUNCTIONS, COUNT=1
+===============================================================================
+
+===============================================================================
+FUNCTION ID 0
+FLAGS 1
+NUM PARAMS 0
+NUM LOCALS 1
+MAX STACK 3
+BYTE CODE SIZE 68
+  0000 push fp 29573.000000
+  0008 set global 0
+  0016 get global 0
+  0024 set local 0
+  0032 push null
+  0036 get global 3
+  0044 get global 0
+  0052 call 1
+  0060 pop
+  0064 ret
+
+
+END LIB

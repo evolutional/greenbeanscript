@@ -99,5 +99,19 @@ namespace GreenBeanScript.Tests
 
             a.IsNumber.Should().BeTrue();
         }
+
+        [TestMethod]
+        public void Null_GetFloat_Is_Zero()
+        {
+            var a = new Variable();
+            a.GetFloat().Should().Be(0);
+        }
+
+        [TestMethod]
+        public void Null_GetInteger_Is_Zero()
+        {
+            var a = new Variable();
+            a.GetInteger().Should().Be(0);
+        }
     }
 }

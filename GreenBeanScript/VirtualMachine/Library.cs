@@ -547,7 +547,10 @@ namespace GreenBeanScript
                     {
                         InstructionList[InstructionId].SetOperand(0, new Variable(functionObjects[instruction[0].GetInteger()]));
                     }
-                    else if ((instruction.OpCode == ByteCode.Operator.Bra) || (instruction.OpCode == ByteCode.Operator.Brz))
+                    else if ((instruction.OpCode == ByteCode.Operator.Bra) 
+                        || (instruction.OpCode == ByteCode.Operator.Brz)
+                        || (instruction.OpCode == ByteCode.Operator.Brzk)
+                        )
                     {
                         // Loop through and find the 
                         for (int INum = 0; INum < InstructionList.Length; ++INum )

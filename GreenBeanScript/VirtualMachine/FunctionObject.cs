@@ -52,6 +52,7 @@ namespace GreenBeanScript
         internal void Initialise(List<ByteCode.Instruction> Instructions, int NumLocals, int NumParameters)
         {
             _Instructions = Instructions.ToArray();
+
             _NumLocals = NumLocals;
             _NumParams = NumParameters;
             _NumParamsLocals = _NumLocals + _NumParams;

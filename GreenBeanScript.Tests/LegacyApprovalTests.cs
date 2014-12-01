@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using ApprovalTests;
 using ApprovalTests.Reporters;
+using FluentAssertions;
 using GreenBeanScript.Libs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
