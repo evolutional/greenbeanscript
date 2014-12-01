@@ -8,77 +8,77 @@ namespace GreenBeanScript
     {
         internal class OperatorCallbacks : TypeOperators
         {
-            protected void Add(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Add(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetFloat(Operand0.GetFloat() + Operand1.GetFloat());
+                return Operand0.GetFloat() + Operand1.GetFloat();
             }
 
-            protected void Sub(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Sub(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetFloat(Operand0.GetFloat() - Operand1.GetFloat());
+                return Operand0.GetFloat() - Operand1.GetFloat();
             }
 
-            protected void Mul(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Mul(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetFloat(Operand0.GetFloat() * Operand1.GetFloat());
+                return Operand0.GetFloat() * Operand1.GetFloat();
             }
 
-            protected void Div(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Div(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetFloat(Operand0.GetFloat() / Operand1.GetFloat());
+                return Operand0.GetFloat() / Operand1.GetFloat();
             }
 
-            protected void Rem(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Rem(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetFloat(Operand0.GetFloat() % Operand1.GetFloat());
+                return Operand0.GetFloat() % Operand1.GetFloat();
             }
 
-            protected void Neg(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Neg(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetFloat(-Operand0.GetFloat());
+                return (-Operand0.GetFloat());
             }
 
-            protected void Not(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Not(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
                 if (Operand0.GetFloat() == 0.0f)
                 {
-                    Operand0.SetInteger(1);
+                    return Variable.One;
                 }
                 else
                 {
-                    Operand0.SetInteger(0);
+                    return Variable.Zero;
                 }
             }
 
             #region Comparisons
-            protected void Eq(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Eq(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetInteger(Operand0.GetFloat() == Operand1.GetFloat() ? 1 : 0);
+                return (Operand0.GetFloat() == Operand1.GetFloat() ? Variable.One : Variable.Zero);
             }
 
-            protected void Neq(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Neq(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetInteger(Operand0.GetFloat() != Operand1.GetFloat() ? 1 : 0);
+                return (Operand0.GetFloat() != Operand1.GetFloat() ? Variable.One : Variable.Zero);
             }
 
-            protected void Lt(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Lt(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetInteger(Operand0.GetFloat() < Operand1.GetFloat() ? 1 : 0);
+                return (Operand0.GetFloat() < Operand1.GetFloat() ? Variable.One : Variable.Zero);
             }
 
-            protected void Lte(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Lte(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetInteger(Operand0.GetFloat() <= Operand1.GetFloat() ? 1 : 0);
+                return (Operand0.GetFloat() <= Operand1.GetFloat() ? Variable.One : Variable.Zero);
             }
 
-            protected void Gt(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Gt(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetInteger(Operand0.GetFloat() > Operand1.GetFloat() ? 1 : 0);
+                return (Operand0.GetFloat() > Operand1.GetFloat() ? Variable.One : Variable.Zero);
             }
 
-            protected void Gte(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Gte(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetInteger(Operand0.GetFloat() >= Operand1.GetFloat() ? 1 : 0);
+                return (Operand0.GetFloat() >= Operand1.GetFloat() ? Variable.One : Variable.Zero);
             }
             #endregion
 

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GreenBeanScript
 {
-    public delegate void OperatorCallback(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2 );
+    public delegate Variable OperatorCallback(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2);
     public interface TypeOperators
     {
         void Initialise(Machine Machine, ScriptType Type);

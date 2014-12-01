@@ -183,75 +183,75 @@ namespace GreenBeanScript
 
                 var bc = BitConverter.ToUInt32(byteCode, instruction);
 
-                switch ((ByteCode.Operator)bc)
+                switch ((ByteCode.Opcode)bc)
                 {
-                  case ByteCode.Operator.Nop : cp = "nop"; break;
-                  case ByteCode.Operator.Line : cp = "line"; break;
+                  case ByteCode.Opcode.Nop : cp = "nop"; break;
+                  case ByteCode.Opcode.Line : cp = "line"; break;
 
-                  case ByteCode.Operator.GetDot : cp = "get dot"; opiptr = true; break;
-                  case ByteCode.Operator.SetDot : cp = "set dot"; opiptr = true; break;
-                  case ByteCode.Operator.GetInd : cp = "get index"; break;
-                  case ByteCode.Operator.SetInd : cp = "set index"; break;
+                  case ByteCode.Opcode.GetDot : cp = "get dot"; opiptr = true; break;
+                  case ByteCode.Opcode.SetDot : cp = "set dot"; opiptr = true; break;
+                  case ByteCode.Opcode.GetInd : cp = "get index"; break;
+                  case ByteCode.Opcode.SetInd : cp = "set index"; break;
 
-                  case ByteCode.Operator.Bra : cp = "bra"; opiptr = true; break;
-                  case ByteCode.Operator.Brz : cp = "brz"; opiptr = true; break;
-                  case ByteCode.Operator.Brnz : cp = "brnz"; opiptr = true; break;
-                  case ByteCode.Operator.Brzk : cp = "brzk"; opiptr = true; break;
-                  case ByteCode.Operator.Brnzk : cp = "brnzk"; opiptr = true; break;
-                  case ByteCode.Operator.Call : cp = "call"; opiptr = true; break;
-                  case ByteCode.Operator.Ret : cp = "ret"; break;
-                  case ByteCode.Operator.Retv : cp = "retv"; break;
-                  case ByteCode.Operator.ForEach : cp = "foreach"; opiptr = true; break;
+                  case ByteCode.Opcode.Bra : cp = "bra"; opiptr = true; break;
+                  case ByteCode.Opcode.Brz : cp = "brz"; opiptr = true; break;
+                  case ByteCode.Opcode.Brnz : cp = "brnz"; opiptr = true; break;
+                  case ByteCode.Opcode.Brzk : cp = "brzk"; opiptr = true; break;
+                  case ByteCode.Opcode.Brnzk : cp = "brnzk"; opiptr = true; break;
+                  case ByteCode.Opcode.Call : cp = "call"; opiptr = true; break;
+                  case ByteCode.Opcode.Ret : cp = "ret"; break;
+                  case ByteCode.Opcode.Retv : cp = "retv"; break;
+                  case ByteCode.Opcode.ForEach : cp = "foreach"; opiptr = true; break;
       
-                  case ByteCode.Operator.Pop : cp = "pop"; break;
-                  case ByteCode.Operator.Pop2 : cp = "pop2"; break;
-                  case ByteCode.Operator.Dup : cp = "dup"; break;
-                  case ByteCode.Operator.Dup2 : cp = "dup2"; break;
-                  case ByteCode.Operator.Swap : cp = "swap"; break;
-                  case ByteCode.Operator.PushNull : cp = "push null"; break;
-                  case ByteCode.Operator.PushInt : cp = "push int"; opiptr = true; break;
-                  case ByteCode.Operator.PushInt0 : cp = "push int 0"; break;
-                  case ByteCode.Operator.PushInt1 : cp = "push int 1"; break;
-                  case ByteCode.Operator.PushFp : cp = "push fp"; opf32 = true; break;
-                  case ByteCode.Operator.PushStr : cp = "push str"; opiptr = true; break;
-                  case ByteCode.Operator.PushTbl : cp = "push tbl"; break;
-                  case ByteCode.Operator.PushFn : cp = "push fn"; opiptr = true; break;
-                  case ByteCode.Operator.PushThis : cp = "push this"; break;
+                  case ByteCode.Opcode.Pop : cp = "pop"; break;
+                  case ByteCode.Opcode.Pop2 : cp = "pop2"; break;
+                  case ByteCode.Opcode.Dup : cp = "dup"; break;
+                  case ByteCode.Opcode.Dup2 : cp = "dup2"; break;
+                  case ByteCode.Opcode.Swap : cp = "swap"; break;
+                  case ByteCode.Opcode.PushNull : cp = "push null"; break;
+                  case ByteCode.Opcode.PushInt : cp = "push int"; opiptr = true; break;
+                  case ByteCode.Opcode.PushInt0 : cp = "push int 0"; break;
+                  case ByteCode.Opcode.PushInt1 : cp = "push int 1"; break;
+                  case ByteCode.Opcode.PushFp : cp = "push fp"; opf32 = true; break;
+                  case ByteCode.Opcode.PushStr : cp = "push str"; opiptr = true; break;
+                  case ByteCode.Opcode.PushTbl : cp = "push tbl"; break;
+                  case ByteCode.Opcode.PushFn : cp = "push fn"; opiptr = true; break;
+                  case ByteCode.Opcode.PushThis : cp = "push this"; break;
       
-                  case ByteCode.Operator.GetLocal : cp = "get local"; opiptr = true; break;
-                  case ByteCode.Operator.SetLocal : cp = "set local"; opiptr = true; break;
-                  case ByteCode.Operator.GetGlobal : cp = "get global"; opiptr = true; break;
-                  case ByteCode.Operator.SetGlobal : cp = "set global"; opiptr = true; break;
-                  case ByteCode.Operator.GetThis : cp = "get this"; opiptr = true; break;
-                  case ByteCode.Operator.SetThis : cp = "set this"; opiptr = true; break;
+                  case ByteCode.Opcode.GetLocal : cp = "get local"; opiptr = true; break;
+                  case ByteCode.Opcode.SetLocal : cp = "set local"; opiptr = true; break;
+                  case ByteCode.Opcode.GetGlobal : cp = "get global"; opiptr = true; break;
+                  case ByteCode.Opcode.SetGlobal : cp = "set global"; opiptr = true; break;
+                  case ByteCode.Opcode.GetThis : cp = "get this"; opiptr = true; break;
+                  case ByteCode.Opcode.SetThis : cp = "set this"; opiptr = true; break;
       
-                  case ByteCode.Operator.OpAdd : cp = "add"; break;
-                  case ByteCode.Operator.OpSub : cp = "sub"; break;
-                  case ByteCode.Operator.OpMul : cp = "mul"; break;
-                  case ByteCode.Operator.OpDiv : cp = "div"; break;
-                  case ByteCode.Operator.OpRem : cp = "rem"; break;
+                  case ByteCode.Opcode.OpAdd : cp = "add"; break;
+                  case ByteCode.Opcode.OpSub : cp = "sub"; break;
+                  case ByteCode.Opcode.OpMul : cp = "mul"; break;
+                  case ByteCode.Opcode.OpDiv : cp = "div"; break;
+                  case ByteCode.Opcode.OpRem : cp = "rem"; break;
          
-                  case ByteCode.Operator.OpInc : cp = "inc"; break;
-                  case ByteCode.Operator.OpDec : cp = "dec"; break;
+                  case ByteCode.Opcode.OpInc : cp = "inc"; break;
+                  case ByteCode.Opcode.OpDec : cp = "dec"; break;
   
 
-                  case ByteCode.Operator.BitOr : cp = "bor"; break;
-                  case ByteCode.Operator.BitXor : cp = "bxor"; break;
-                  case ByteCode.Operator.BitAnd : cp = "band"; break;
-                  case ByteCode.Operator.BitInv : cp = "binv"; break;
-                  case ByteCode.Operator.BitShl : cp = "bshl"; break;
-                  case ByteCode.Operator.BitShr : cp = "bshr"; break;
+                  case ByteCode.Opcode.BitOr : cp = "bor"; break;
+                  case ByteCode.Opcode.BitXor : cp = "bxor"; break;
+                  case ByteCode.Opcode.BitAnd : cp = "band"; break;
+                  case ByteCode.Opcode.BitInv : cp = "binv"; break;
+                  case ByteCode.Opcode.BitShl : cp = "bshl"; break;
+                  case ByteCode.Opcode.BitShr : cp = "bshr"; break;
       
-                  case ByteCode.Operator.OpNeg : cp = "neg"; break;
-                  case ByteCode.Operator.OpPos : cp = "pos"; break;
-                  case ByteCode.Operator.OpNot : cp = "not"; break;
+                  case ByteCode.Opcode.OpNeg : cp = "neg"; break;
+                  case ByteCode.Opcode.OpPos : cp = "pos"; break;
+                  case ByteCode.Opcode.OpNot : cp = "not"; break;
       
-                  case ByteCode.Operator.OpLt : cp = "lt"; break;
-                  case ByteCode.Operator.OpGt : cp = "gt"; break;
-                  case ByteCode.Operator.OpLte : cp = "lte"; break;
-                  case ByteCode.Operator.OpGte : cp = "gte"; break;
-                  case ByteCode.Operator.OpEq : cp = "eq"; break;
-                  case ByteCode.Operator.OpNeq : cp = "neq"; break;
+                  case ByteCode.Opcode.OpLt : cp = "lt"; break;
+                  case ByteCode.Opcode.OpGt : cp = "gt"; break;
+                  case ByteCode.Opcode.OpLte : cp = "lte"; break;
+                  case ByteCode.Opcode.OpGte : cp = "gte"; break;
+                  case ByteCode.Opcode.OpEq : cp = "eq"; break;
+                  case ByteCode.Opcode.OpNeq : cp = "neq"; break;
 
                   //case ByteCode.Operator.Fork: cp = "fork"; opiptr = true; break;
                   default : cp = "ERROR"; break;
@@ -373,31 +373,31 @@ namespace GreenBeanScript
 
                 for (int instruction = 0; instruction < end; )
                 {
-                    ByteCode.Operator instr = (ByteCode.Operator)BitConverter.ToUInt32(bytecode, instruction);
+                    ByteCode.Opcode instr = (ByteCode.Opcode)BitConverter.ToUInt32(bytecode, instruction);
                     int bytecodeoffset = instruction;
                     instruction += 4;
                     switch (instr)
                     {
                         #region Operators
-                        case ByteCode.Operator.OpRem:
-                        case ByteCode.Operator.OpAdd:
-                        case ByteCode.Operator.OpDiv:
-                        case ByteCode.Operator.OpEq:
-                        case ByteCode.Operator.OpGt:
-                        case ByteCode.Operator.OpGte:
-                        case ByteCode.Operator.OpLt:
-                        case ByteCode.Operator.OpLte:
-                        case ByteCode.Operator.OpMul:
-                        case ByteCode.Operator.OpNeg:
-                        case ByteCode.Operator.OpSub:
-                        case ByteCode.Operator.SetInd:
-                        case ByteCode.Operator.GetInd:
+                        case ByteCode.Opcode.OpRem:
+                        case ByteCode.Opcode.OpAdd:
+                        case ByteCode.Opcode.OpDiv:
+                        case ByteCode.Opcode.OpEq:
+                        case ByteCode.Opcode.OpGt:
+                        case ByteCode.Opcode.OpGte:
+                        case ByteCode.Opcode.OpLt:
+                        case ByteCode.Opcode.OpLte:
+                        case ByteCode.Opcode.OpMul:
+                        case ByteCode.Opcode.OpNeg:
+                        case ByteCode.Opcode.OpSub:
+                        case ByteCode.Opcode.SetInd:
+                        case ByteCode.Opcode.GetInd:
                             {
                                 InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset));
                                 break;
                             }
-                        case ByteCode.Operator.SetDot:
-                        case ByteCode.Operator.GetDot:
+                        case ByteCode.Opcode.SetDot:
+                        case ByteCode.Opcode.GetDot:
                             {
                                 uint reference = System.BitConverter.ToUInt32(bytecode, instruction);
                                 instruction += sizeof(uint);
@@ -406,17 +406,17 @@ namespace GreenBeanScript
                                 break;
                             }
                         #endregion
-                        case ByteCode.Operator.Ret:
-                        case ByteCode.Operator.Retv:
-                        case ByteCode.Operator.Dup:
-                        case ByteCode.Operator.Pop:
-                        case ByteCode.Operator.Pop2:                        
+                        case ByteCode.Opcode.Ret:
+                        case ByteCode.Opcode.Retv:
+                        case ByteCode.Opcode.Dup:
+                        case ByteCode.Opcode.Pop:
+                        case ByteCode.Opcode.Pop2:                        
                             {
                                 InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset));
                                 break;
                             }
 
-                        case ByteCode.Operator.ForEach:
+                        case ByteCode.Opcode.ForEach:
                             {
                                 Int16 localref = System.BitConverter.ToInt16(bytecode, instruction);
                                 instruction += sizeof(Int16);
@@ -426,7 +426,7 @@ namespace GreenBeanScript
                                 break;
                             }
                         
-                        case ByteCode.Operator.Call:
+                        case ByteCode.Opcode.Call:
                             {
                                 int numParams = BitConverter.ToInt32(bytecode, instruction);
                                 instruction += sizeof(int);
@@ -434,8 +434,8 @@ namespace GreenBeanScript
                                 InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset, new Variable[] { new Variable(numParams) }));
                                 break;
                             }
-                        case ByteCode.Operator.GetLocal:
-                        case ByteCode.Operator.SetLocal:
+                        case ByteCode.Opcode.GetLocal:
+                        case ByteCode.Opcode.SetLocal:
                             {
                                 uint reference = System.BitConverter.ToUInt32(bytecode, instruction);
                                 instruction += sizeof(uint);
@@ -444,8 +444,8 @@ namespace GreenBeanScript
                                 break;
                             }
 
-                        case ByteCode.Operator.GetGlobal:
-                        case ByteCode.Operator.SetGlobal:
+                        case ByteCode.Opcode.GetGlobal:
+                        case ByteCode.Opcode.SetGlobal:
                             {
                                 uint reference = BitConverter.ToUInt32(bytecode, instruction);
                                 instruction += sizeof(int);
@@ -454,9 +454,9 @@ namespace GreenBeanScript
                                 break;
                             }
                         #region Branch
-                        case ByteCode.Operator.Brzk:
-                        case ByteCode.Operator.Brz:
-                        case ByteCode.Operator.Bra:
+                        case ByteCode.Opcode.Brzk:
+                        case ByteCode.Opcode.Brz:
+                        case ByteCode.Opcode.Bra:
                             {
                                 int offset = BitConverter.ToInt32(bytecode, instruction);
                                 instruction += sizeof(int);
@@ -465,23 +465,23 @@ namespace GreenBeanScript
                             }
                         #endregion
                         #region Push Operators
-                        case ByteCode.Operator.PushThis:
-                        case ByteCode.Operator.PushNull:
+                        case ByteCode.Opcode.PushThis:
+                        case ByteCode.Opcode.PushNull:
                             {
                                 InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset));
                                 break;
                             }
-                        case ByteCode.Operator.PushInt0:
+                        case ByteCode.Opcode.PushInt0:
                             {
                                 InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset, new Variable[] { new Variable(0) }));
                                 break;
                             }
-                        case ByteCode.Operator.PushInt1:
+                        case ByteCode.Opcode.PushInt1:
                             {
                                 InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset, new Variable[] { new Variable(1) }));
                                 break;
                             }
-                        case ByteCode.Operator.PushInt:
+                        case ByteCode.Opcode.PushInt:
                             {
                                 int val = BitConverter.ToInt32(bytecode, instruction);
                                 instruction += sizeof(int);
@@ -489,7 +489,7 @@ namespace GreenBeanScript
                                 InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset, new Variable[] { new Variable(val) }));
                                 break;
                             }
-                        case ByteCode.Operator.PushFp:
+                        case ByteCode.Opcode.PushFp:
                             {
                                 var i32 = BitConverter.ToInt32(bytecode, instruction);
                                 float f = BitConverter.ToSingle(bytecode, instruction);
@@ -498,12 +498,12 @@ namespace GreenBeanScript
                                 InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset, new Variable[] { new Variable(f) }));
                                 break;
                             }
-                        case ByteCode.Operator.PushTbl:
+                        case ByteCode.Opcode.PushTbl:
                             {
                                 InstructionList.Add(new ByteCode.Instruction(instr, bytecodeoffset));//, new Variable[] { new Variable(Machine.CreateTable()) }));
                                 break;
                             }
-                        case ByteCode.Operator.PushStr:
+                        case ByteCode.Opcode.PushStr:
                             {
                                 uint reference = System.BitConverter.ToUInt32(bytecode, instruction);
                                 instruction += sizeof(uint);
@@ -512,7 +512,7 @@ namespace GreenBeanScript
                                 break;
                             }
 
-                        case ByteCode.Operator.PushFn:
+                        case ByteCode.Opcode.PushFn:
                             {
                                 uint reference = System.BitConverter.ToUInt32(bytecode, instruction);
                                 instruction += sizeof(uint);
@@ -543,13 +543,13 @@ namespace GreenBeanScript
                 int InstructionId = 0;
                 foreach (ByteCode.Instruction instruction in InstructionList)
                 {
-                    if (instruction.OpCode == ByteCode.Operator.PushFn)
+                    if (instruction.OpCode == ByteCode.Opcode.PushFn)
                     {
                         InstructionList[InstructionId].SetOperand(0, new Variable(functionObjects[instruction[0].GetInteger()]));
                     }
-                    else if ((instruction.OpCode == ByteCode.Operator.Bra) 
-                        || (instruction.OpCode == ByteCode.Operator.Brz)
-                        || (instruction.OpCode == ByteCode.Operator.Brzk)
+                    else if ((instruction.OpCode == ByteCode.Opcode.Bra) 
+                        || (instruction.OpCode == ByteCode.Opcode.Brz)
+                        || (instruction.OpCode == ByteCode.Opcode.Brzk)
                         )
                     {
                         // Loop through and find the 

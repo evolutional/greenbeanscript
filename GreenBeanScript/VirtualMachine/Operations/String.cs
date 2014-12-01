@@ -8,19 +8,19 @@ namespace GreenBeanScript
     {
         internal class OperatorCallbacks : TypeOperators
         {
-            protected void Add(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Add(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetString(Operand0.ToString() + Operand1.ToString());
+                return (Operand0.ToString() + Operand1.ToString());
             }
 
-            protected void Eq(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Eq(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetInteger(Operand0.ToString() == Operand1.ToString() ? 1 : 0);
+                return (Operand0.ToString() == Operand1.ToString() ? Variable.One : Variable.Zero);
             }
 
-            protected void Neq(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
+            protected Variable Neq(Thread ScriptThread, Variable Operand0, Variable Operand1, Variable Operand2)
             {
-                Operand0.SetInteger(Operand0.ToString() != Operand1.ToString() ? 1 : 0);
+                return (Operand0.ToString() != Operand1.ToString() ? Variable.One : Variable.Zero);
             }
 
             public void Initialise(Machine Machine, ScriptType Type)

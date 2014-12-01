@@ -27,6 +27,13 @@ namespace GreenBeanScript.Tests
         }
 
         [TestMethod]
+        public void String_IsString_True()
+        {
+            var a = new Variable("vara");
+            a.IsString.Should().BeTrue();
+        }
+
+        [TestMethod]
         public void Integer_IsInt_True()
         {
             var a = new Variable(100);

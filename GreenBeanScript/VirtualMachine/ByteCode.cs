@@ -6,7 +6,7 @@ namespace GreenBeanScript
 {
     namespace ByteCode
     {
-        public enum Operator : int
+        public enum Opcode : int
         {
             GetDot = 0,
             SetDot,
@@ -79,14 +79,14 @@ namespace GreenBeanScript
         internal struct Instruction
         {
 
-            public Instruction(Operator OpCode, int ByteCodeOffset)
+            public Instruction(Opcode OpCode, int ByteCodeOffset)
             {
                 _OpCode = OpCode;
                 _Operands = null;
                 _ByteCodeOffset = ByteCodeOffset;
             }
 
-            public Instruction(Operator OpCode, int ByteCodeOffset, Variable[] Operands)
+            public Instruction(Opcode OpCode, int ByteCodeOffset, Variable[] Operands)
             {
                 _OpCode = OpCode;
                 _Operands = Operands;
@@ -98,7 +98,7 @@ namespace GreenBeanScript
                 get { return _ByteCodeOffset; }
             }
 
-            public Operator OpCode
+            public Opcode OpCode
             {
                 get { return _OpCode; }
             }
@@ -118,7 +118,7 @@ namespace GreenBeanScript
                 _Operands[Index] = Value;
             }
 
-            private Operator _OpCode;
+            private Opcode _OpCode;
             private Variable[] _Operands;
             private int _ByteCodeOffset;
         }

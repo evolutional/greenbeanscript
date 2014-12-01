@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GreenBeanScript
 {
-    public delegate void TypeIteratorCallback(Thread ScriptThread, object Object, ref int IteratorPosition, ref Variable Key, ref Variable Item );
+    public delegate int TypeIteratorCallback(Thread ScriptThread, object Object, int IteratorPosition, Variable Key, Variable Item );
 
     public class ScriptTypeCollection : KeyedCollection<int, ScriptType>
     {
