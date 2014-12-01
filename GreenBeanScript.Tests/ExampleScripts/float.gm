@@ -1,0 +1,5 @@
+﻿global IC =  29573.;
+
+local tempvar = IC;
+
+print(IC);

@@ -71,11 +71,11 @@ namespace GreenBeanScript
         }
         public float GetFloatNoCheck()
         {
-            return (float)_RefValue;
+            return Convert.ToSingle(_RefValue);
         }
         public int GetIntegerNoCheck()
         {
-            return (int)_RefValue;
+            return Convert.ToInt32(_RefValue);
         }
         #endregion
 
@@ -112,7 +112,7 @@ namespace GreenBeanScript
 
         public int GetInteger()
         {
-            if (_Type != VariableType.Integer)
+            if (!IsInt)
             {
                 throw new Exception("Invalid cast");
             }
@@ -121,20 +121,21 @@ namespace GreenBeanScript
 
         public float GetFloat()
         {
-            if (_Type == VariableType.Float)
+            if (IsFloat)
             {
                 return (float)_RefValue;
             }
-            else if (Type == VariableType.Integer)
+            if (IsInt)
             {
-                return (int)_RefValue;
+                return Convert.ToSingle(_RefValue);
             }
+
             throw new Exception("Invalid cast");
         }
 
         public object GetReference()
         {
-            if (TypeCode <= (int)VariableType.Float)
+            if (!IsReference)
             {
                 return null;
             }
@@ -250,6 +251,30 @@ namespace GreenBeanScript
         public VariableType Type
         {
             get { return _Type; }
+        }
+
+        public bool IsInt { get { return _Type == VariableType.Integer; } }
+        public bool IsFloat { get { return _Type == VariableType.Float; } }
+        public bool IsNumber { get { return IsInt || IsFloat; }}
+
+        public bool IsZero
+        {
+            get
+            {
+                if (IsNull)
+                {
+                    return true;
+                }
+                else if (IsInt)
+                {
+                    return GetIntegerNoCheck() == 0;
+                }
+                else if (IsFloat)
+                {
+                    return GetFloatNoCheck() == 0;
+                }
+                return false;
+            }
         }
 
         internal VariableType _Type;

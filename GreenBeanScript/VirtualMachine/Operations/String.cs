@@ -10,7 +10,7 @@ namespace GreenBeanScript
         {
             protected void Add(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
             {
-                Operand0.SetString(Operand0.GetString() + Operand1.ToString());
+                Operand0.SetString(Operand0.ToString() + Operand1.ToString());
             }
 
             protected void Eq(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)

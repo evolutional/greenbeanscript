@@ -92,6 +92,10 @@
     <Content Include="ExampleScripts\fib.gml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ExampleScripts\float.gm" />
+    <None Include="ExampleScripts\float.gml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="ExampleScripts\hash.gm" />
     <Content Include="ExampleScripts\hash.gml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

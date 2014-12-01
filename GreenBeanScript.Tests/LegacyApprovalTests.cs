@@ -70,6 +70,15 @@ namespace GreenBeanScript.Tests
 
         [UseReporter(typeof(DiffReporter))]
         [TestMethod]
+        public void CompiledFloat()
+        {
+            var log = new StringBuilder();
+            Do(log, @"./ExampleScripts/float.gml");
+            Approvals.Verify(log.ToString());
+        }
+
+        [UseReporter(typeof(DiffReporter))]
+        [TestMethod]
         public void ListCompiledFib()
         {
             var log = new StringBuilder();
@@ -101,6 +110,15 @@ namespace GreenBeanScript.Tests
         {
             var log = new StringBuilder();
             List(log, @"./../../ExampleScripts/hash.gml");
+            Approvals.Verify(log.ToString());
+        }
+
+        [UseReporter(typeof(DiffReporter))]
+        [TestMethod]
+        public void ListCompiledFloat()
+        {
+            var log = new StringBuilder();
+            List(log, @"./../../ExampleScripts/float.gml");
             Approvals.Verify(log.ToString());
         }
     }

@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GreenBeanScript.Tests
@@ -26,6 +27,38 @@ namespace GreenBeanScript.Tests
         }
 
         [TestMethod]
+        public void Integer_IsInt_True()
+        {
+            var a = new Variable(100);
+
+            a.IsInt.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void Integer_IsFloat_False()
+        {
+            var a = new Variable(100);
+
+            a.IsFloat.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void Integer_GetFloat_IsValid()
+        {
+            var a = new Variable(100);
+            var f = a.GetFloat();
+            f.Should().Be(100.0f);
+        }
+
+        [TestMethod]
+        public void Integer_IsNumber_True()
+        {
+            var a = new Variable(100);
+
+            a.IsNumber.Should().BeTrue();
+        }
+
+        [TestMethod]
         public void Integer_with_same_value_are_Equal()
         {
             var a = new Variable(100);
@@ -43,5 +76,28 @@ namespace GreenBeanScript.Tests
             a.Equals(b).Should().BeTrue();
         }
 
+        [TestMethod]
+        public void Float_IsInt_False()
+        {
+            var a = new Variable(123.45f);
+
+            a.IsInt.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void Float_IsFloat_True()
+        {
+            var a = new Variable(123.45f);
+
+            a.IsFloat.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void Float_IsNumber_True()
+        {
+            var a = new Variable(123.45f);
+
+            a.IsNumber.Should().BeTrue();
+        }
     }
 }

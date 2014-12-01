@@ -53,32 +53,32 @@ namespace GreenBeanScript
             #region Comparisons
             protected void Eq(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
             {
-                Operand0.SetFloat(Operand0.GetFloat() == Operand1.GetFloat() ? 1 : 0);
+                Operand0.SetInteger(Operand0.GetFloat() == Operand1.GetFloat() ? 1 : 0);
             }
 
             protected void Neq(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
             {
-                Operand0.SetFloat(Operand0.GetFloat() != Operand1.GetFloat() ? 1 : 0);
+                Operand0.SetInteger(Operand0.GetFloat() != Operand1.GetFloat() ? 1 : 0);
             }
 
             protected void Lt(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
             {
-                Operand0.SetFloat(Operand0.GetFloat() < Operand1.GetFloat() ? 1 : 0);
+                Operand0.SetInteger(Operand0.GetFloat() < Operand1.GetFloat() ? 1 : 0);
             }
 
             protected void Lte(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
             {
-                Operand0.SetFloat(Operand0.GetFloat() <= Operand1.GetFloat() ? 1 : 0);
+                Operand0.SetInteger(Operand0.GetFloat() <= Operand1.GetFloat() ? 1 : 0);
             }
 
             protected void Gt(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
             {
-                Operand0.SetFloat(Operand0.GetFloat() > Operand1.GetFloat() ? 1 : 0);
+                Operand0.SetInteger(Operand0.GetFloat() > Operand1.GetFloat() ? 1 : 0);
             }
 
             protected void Gte(Thread ScriptThread, ref Variable Operand0, ref Variable Operand1, ref Variable Operand2)
             {
-                Operand0.SetFloat(Operand0.GetFloat() >= Operand1.GetFloat() ? 1 : 0);
+                Operand0.SetInteger(Operand0.GetFloat() >= Operand1.GetFloat() ? 1 : 0);
             }
             #endregion
 

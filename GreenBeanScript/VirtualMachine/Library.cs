@@ -341,8 +341,6 @@ namespace GreenBeanScript
         public bool Load(Machine Machine, Stream fileStream)
         {
             var data = new BinaryReader(fileStream);
-            
-            gmlFunction function;
 
             List<FunctionObject> functionObjects = new List<FunctionObject>();
 
@@ -364,14 +362,7 @@ namespace GreenBeanScript
             for (int i = 0; i < numFunctions; ++i)
             {
                 // Read out function entry
-                function = new gmlFunction();
-                function.func = data.ReadUInt32();
-                function.id = data.ReadUInt32();
-                function.flags = data.ReadUInt32();
-                function.numParams = data.ReadUInt32();
-                function.numLocals = data.ReadUInt32();
-                function.maxStackSize = data.ReadUInt32();
-                function.byteCodeLen = data.ReadUInt32();
+                var function = ReadFunction(data);
 
                 if (function.flags == 1)
                     _MainFunctionId = i;
@@ -500,6 +491,7 @@ namespace GreenBeanScript
                             }
                         case ByteCode.Operator.PushFp:
                             {
+                                var i32 = BitConverter.ToInt32(bytecode, instruction);
                                 float f = BitConverter.ToSingle(bytecode, instruction);
                                 instruction += sizeof(float);
 

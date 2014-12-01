@@ -462,6 +462,7 @@ namespace GreenBeanScript
                     case ByteCode.Operator.OpLte:
                     case ByteCode.Operator.OpGt:
                     case ByteCode.Operator.OpGte:
+                    case ByteCode.Operator.OpRem:
                     case ByteCode.Operator.OpAdd:
                     case ByteCode.Operator.OpSub:
                     case ByteCode.Operator.OpMul:
@@ -526,7 +527,16 @@ namespace GreenBeanScript
                                         o = Operator.Gte;
                                         break;
                                     }
+                                case ByteCode.Operator.OpRem:
+                                    {
+                                        o = Operator.Rem;
+                                        break;
+                                    }
                                 #endregion
+                            }
+                            if (o == Operator._MAX)
+                            {
+                                throw new NotImplementedException("Operator not mapped or implemented");
                             }
                             int t = _Stack2[_Top - 1].TypeCode;
                             if (_Stack2[_Top - 2].TypeCode > t)
@@ -639,7 +649,8 @@ namespace GreenBeanScript
                     #region Branch
                     case ByteCode.Operator.Brz:
                         {
-                            if (_Stack2[--_Top].GetInteger() == 0)
+                            var v = _Stack2[--_Top];
+                            if (v.IsZero)
                             {
                                 _InstructionPtr = Inst[0].GetInteger();
                             }
@@ -647,7 +658,8 @@ namespace GreenBeanScript
                         }
                     case ByteCode.Operator.Brnz:
                         {
-                            if (_Stack2[--_Top].GetInteger() != 0)
+                            var v = _Stack2[--_Top];
+                            if (!v.IsZero)
                             {
                                 _InstructionPtr = Inst[0].GetInteger();
                             }
@@ -655,7 +667,8 @@ namespace GreenBeanScript
                         }
                     case ByteCode.Operator.Brzk:
                         {
-                            if (_Stack2[_Top - 1].GetInteger() == 0)
+                            var v = _Stack2[_Top - 1];
+                            if (v.IsZero)
                             {
                                 _InstructionPtr = Inst[0].GetInteger();
                             }
@@ -663,7 +676,8 @@ namespace GreenBeanScript
                         }
                     case ByteCode.Operator.Brnzk:
                         {
-                            if (_Stack2[_Top - 1].GetInteger() != 0)
+                            var v = _Stack2[_Top - 1];
+                            if (!v.IsZero)
                             {
                                 _InstructionPtr = Inst[0].GetInteger();
                             }

@@ -165,78 +165,52 @@ BYTE CODE SIZE 372
   0040 set global 23
   0048 push fp 3877.000000
   0056 set global 26
-  0064 push fp -651926382308969260000000.000000
-  0072 ERROR
-  0076 ERROR
-  0080 ERROR
-  0084 ERROR
-  0088 ERROR
-  0092 ERROR
-  0096 ERROR
-  0100 get dot 13312
-  0108 get dot 12544
-  0116 ERROR
-  0120 ERROR
-  0124 ERROR
-  0128 ERROR
-  0132 ERROR
-  0136 ERROR
-  0140 ERROR
-  0144 ERROR
-  0148 ERROR
-  0152 ERROR
-  0156 ERROR
-  0160 ERROR
-  0164 ERROR
-  0168 ERROR
-  0172 ERROR
-  0176 ERROR
-  0180 ERROR
-  0184 ERROR
-  0188 ERROR
-  0192 ERROR
-  0196 ERROR
-  0200 ERROR
-  0204 ERROR
-  0208 ERROR
-  0212 ERROR
-  0216 ERROR
-  0220 get dot 11776
-  0228 ERROR
-  0232 ERROR
-  0236 ERROR
-  0240 ERROR
-  0244 ERROR
-  0248 ERROR
-  0252 ERROR
-  0256 ERROR
-  0260 ERROR
-  0264 ERROR
-  0268 ERROR
-  0272 ERROR
-  0276 ERROR
-  0280 ERROR
-  0284 ERROR
-  0288 ERROR
-  0292 ERROR
-  0296 ERROR
-  0300 ERROR
-  0304 ERROR
-  0308 ERROR
-  0312 ERROR
-  0316 ERROR
-  0320 ERROR
-  0324 get dot 13056
-  0332 ERROR
-  0336 ERROR
-  0340 ERROR
-  0344 ERROR
-  0348 ERROR
-  0352 ERROR
-  0356 ERROR
-  0360 ERROR
-  0364 ERROR
-  0368 ERROR
+  0064 push fp 29573.000000
+  0072 set global 29
+  0080 push fp 42.000000
+  0088 set global 32
+  0096 push fn 0
+  0104 set local 0
+  0112 push fn 1
+  0120 set local 1
+  0128 push tbl
+  0132 set local 2
+  0140 push int 80000
+  0148 set local 3
+  0156 push int 0
+  0160 set local 4
+  0168 get local 4
+  0176 get local 3
+  0184 lt
+  0188 brz 276
+  0196 get local 2
+  0204 get local 4
+  0212 push null
+  0216 get local 0
+  0224 push fp 1.000000
+  0232 call 1
+  0240 set index
+  0244 get local 4
+  0252 push int 1
+  0256 add
+  0260 set local 4
+  0268 bra 168
+  0276 push null
+  0280 get local 1
+  0288 get local 3
+  0296 get local 2
+  0304 call 2
+  0312 pop
+  0316 push null
+  0320 get global 0
+  0328 get local 2
+  0336 get local 3
+  0344 push int 1
+  0348 sub
+  0352 get index
+  0356 call 1
+  0364 pop
+  0368 ret
 
 
 END LIB

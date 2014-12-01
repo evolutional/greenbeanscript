@@ -70,6 +70,53 @@ namespace GreenBeanScript.Libs
             return FunctionResult.Ok;
         }
 
+        protected FunctionResult FormatFunction(Thread ScriptThread)
+        {
+            if (ScriptThread.ParameterCount < 1)
+            {
+                return FunctionResult.Exception;
+            }
+
+            var format = ScriptThread.Param(0).GetString();
+            var sb = new StringBuilder();
+            var param = 1;
+            var charnum = 0;
+
+            while (charnum < format.Length)
+            {
+                var c = format[charnum];
+                
+                if (c == '%')
+                {
+                    var c1 = format[charnum + 1];
+                    switch (c1)
+                    {
+                        case 'X':
+                        case 'x':
+                        {
+                            if (!ScriptThread.Param(param).IsInt)
+                            {
+                                return FunctionResult.Exception;
+                            }
+                            sb.AppendFormat("{0:X}", ScriptThread.Param(param).GetIntegerNoCheck());
+                            ++param;
+                            break;
+                        }
+                    }
+
+                    charnum += 2;
+                }
+                else
+                {
+                    sb.Append(c);
+                    ++charnum;
+                }
+            }
+        
+            ScriptThread.PushString(sb.ToString());
+
+            return FunctionResult.Ok;
+        }
 
         #region Thread Library
         /// <summary>
@@ -168,6 +215,8 @@ namespace GreenBeanScript.Libs
         public bool RegisterLibrary(Machine Vm)
         {
             Vm.RegisterFunction("print", PrintFunction);
+            Vm.RegisterFunction("format", FormatFunction);
+
 
             Vm.RegisterFunction("thread", ThreadFunction);
             Vm.RegisterFunction("block", BlockFunction);
