@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GreenBeanScript</RootNamespace>
     <AssemblyName>GreenBeanScript</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -70,6 +70,8 @@
     <Compile Include="VirtualMachine\ScriptType.cs" />
     <Compile Include="VirtualMachine\TableObject.cs" />
     <Compile Include="VirtualMachine\Thread.cs" />
+    <Compile Include="VirtualMachine\ThreadExtensions.cs" />
+    <Compile Include="VirtualMachine\ThreadStack.cs" />
     <Compile Include="VirtualMachine\Variable.cs" />
     <Compile Include="VirtualMachine\Machine.cs" />
   </ItemGroup>

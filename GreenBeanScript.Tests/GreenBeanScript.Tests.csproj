@@ -74,6 +74,7 @@
     <Compile Include="LegacyApprovalTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TableObjectTests.cs" />
+    <Compile Include="ThreadStackTests.cs" />
     <Compile Include="VariableTests.cs" />
   </ItemGroup>
   <ItemGroup>
