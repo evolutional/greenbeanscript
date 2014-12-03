@@ -9,7 +9,6 @@ namespace GreenBeanScript
     {
         public int ReturnBase;
         public int InstructionPtr;
-        public StackFrame PreviousFrame;
     }
 
     public enum ThreadState
@@ -34,11 +33,11 @@ namespace GreenBeanScript
         /// </summary>
         public int ParameterCount
         {
-            get { return _NumParameters; }
+            get { return _paramCount; }
         }
         public int Id
         {
-            get { return _ThreadId; }
+            get { return _threadId; }
         }
   
         public Machine Machine
@@ -48,86 +47,85 @@ namespace GreenBeanScript
 
         public ThreadState State
         {
-            get { return _State; }
+            get { return _state; }
         }
 
         #endregion
 
-        public Thread(Machine Machine)
+        public Thread(int threadId, Machine machine) : this(threadId, machine, null)
         {
-            _machine = Machine;
         }
 
-        public Thread(Machine Machine, FunctionObject Function)
+        public Thread(int threadId, Machine machine, FunctionObject function)
         {
-            _machine = Machine;
-            _Function = Function;
+            _threadId = threadId;
+            _machine = machine;
+            _function = function;
+            _state = ThreadState.Running;
         }
 
-        public void LogException(string Message)
+        public void LogException(string message)
         {
-            _machine.Log.LogEntry(Message);
-            // TODO: Set state to exception
+            _machine.Log.LogEntry(message);
+            _state = ThreadState.Exception;
         }
 
         public void Push(Variable value)
         {
-            _Stack2.Push(value);
+            _stack.Push(value);
         }
         
 
         #region Public Parameter Methods
-        public Variable Param(int Index)
+        public Variable Param(int index)
         {
-            return _Stack2.PeekBase(Index);
+            return _stack.PeekBase(index);
         }
 
         public Variable This
         {
-            get { return _Stack2.PeekBase(-2); }
+            get { return _stack.PeekBase(-2); }
         }
 
         public FunctionObject Function
         {
-            get { return _Stack2.PeekBase(-1).GetFunction(); }
+            get { return _stack.PeekBase(-1).GetFunction(); }
         }
 
         #endregion
 
         #region Internal Mathods
-        internal void SetId(int Id)
-        {
-            _ThreadId = Id;
-        }
+
 
         internal void SetState(ThreadState State)
         {
-            _State = State;
+            _state = State;
         }
 
-        internal ThreadState PopStackFrame(int InstructionPtr)
+        private ThreadState PopStackFrame()
         {
-            if (_Frame == null)
+            if (_stackFrames.Count == 0)
             {
                 LogException("Stack undeflow");
                 return ThreadState.Exception;
             }
 
-            StackFrame frame = _Frame.PreviousFrame;
-            if (frame == null)
+            var frame = _stackFrames.Pop();
+
+            if (_stackFrames.Count == 0)
             {
                 return ThreadState.Killed;
             }
 
-            _InstructionPtr = _Frame.InstructionPtr;
-            _Stack2.PokeBase(-2, _Stack2.Peek(-1));
+            _instructionPtr = frame.InstructionPtr;
+            _stack.PokeBase(-2, _stack.Peek(-1));
 
-            _Stack2.StackPointer = _Stack2.BasePointer - 1;
-            _Stack2.BasePointer = _Frame.ReturnBase;
-            _Frame = frame;
+            _stack.StackPointer = _stack.BasePointer - 1;
+            _stack.BasePointer = frame.ReturnBase;
 
-            _Function = this.Function;
-            _Function.GetInstructions(ref _instructionList);
+
+            _function = this.Function;
+            _instructionList = _function.Instructions;
             return ThreadState.Running;
         }
 
@@ -136,16 +134,16 @@ namespace GreenBeanScript
             if (Blocks.Length == 0)
                 return 0;
 
-            if (_Blocks == null)
+            if (_blocks == null)
             {
-                _Blocks = new List<Variable>();
+                _blocks = new List<Variable>();
             }
 
             foreach (Variable Block in Blocks)
             {
-                if (!_Blocks.Contains(Block))
+                if (!_blocks.Contains(Block))
                 {
-                    _Blocks.Add(Block);
+                    _blocks.Add(Block);
                 }
             }
 
@@ -153,81 +151,82 @@ namespace GreenBeanScript
             return 0;
         }
 
-        internal ThreadState PushStackFrame(int ParameterCount, int InstructionPtr)
+        internal ThreadState PushStackFrame(int parameterCount)
         {
-            int Base = _Stack2.StackPointer - ParameterCount;
+            int Base = _stack.StackPointer - parameterCount;
 
             if (Base == 2)
             {
                 // TODO: New thread callback
-                _Stack2.BasePointer = Base;
+                _stack.BasePointer = Base;
             }
 
-            Variable fnVar = _Stack2.PeekAbs(Base - 1);
+            Variable fnVar = _stack.PeekAbs(Base - 1);
             if (fnVar.Type != VariableType.Function)
             {
                 _machine.Log.LogEntry("Attempted to call non-function type");
                 return ThreadState.Exception;
             }
 
-            FunctionObject Func = fnVar.GetFunction();
+            var func = fnVar.GetFunction();
 
-            if (Func.Native != null)
+            if (func.Native != null)
             {
-                int LastBase = _Stack2.BasePointer;
-                int LastTop = _Stack2.StackPointer;
-                _Stack2.BasePointer = Base;
-                _NumParameters = ParameterCount;
+                var lastBase = _stack.BasePointer;
+                var lastTop = _stack.StackPointer;
+                _stack.BasePointer = Base;
+                _paramCount = parameterCount;
 
-                FunctionResult res = Func.Native(this);
+                FunctionResult res = func.Native(this);
 
-                if (LastTop == _Stack2.StackPointer)
+                if (lastTop == _stack.StackPointer)
                 {
-                    _Stack2.PokeBase(-2, Variable.Null);
+                    _stack.PokeBase(-2, Variable.Null);
                 }
                 else
                 {
-                    _Stack2.PokeBase(-2, _Stack2.Peek(-1));
+                    _stack.PokeBase(-2, _stack.Peek(-1));
                 }
 
                 // return stack
-                _Stack2.StackPointer = _Stack2.BasePointer - 1;
-                _Stack2.BasePointer = LastBase;
+                _stack.StackPointer = _stack.BasePointer - 1;
+                _stack.BasePointer = lastBase;
 
-                // Sort out the call result
-                if (res != FunctionResult.Ok)
+                switch (res)
                 {
-                    if (res == FunctionResult.Sys_Yield)
+                    case FunctionResult.Ok:
                     {
-                        // Todo: Remove signals
-                        // Todo: Sort out return addr
-                        return ThreadState.Sys_Yield;
+                        break;
                     }
-                    else if (res == FunctionResult.Sys_Block)
+                    case FunctionResult.Sys_Block:
                     {
                         // Todo: Sort out return addr
                         _machine.SwitchThreadState(this, ThreadState.Blocked);
                         return ThreadState.Blocked;
                     }
-                    else if (res == FunctionResult.Sys_Sleep)
+                    case FunctionResult.Sys_Yield:
+                    {
+                        // Todo: Remove signals
+                        // Todo: Sort out return addr
+                        return ThreadState.Sys_Yield;
+                    }
+                    case FunctionResult.Sys_Sleep:
                     {
                         // Todo: Sort out return addr
                         _machine.SwitchThreadState(this, ThreadState.Sleeping);
                         return ThreadState.Sleeping;
                     }
-                    else if (res == FunctionResult.Sys_Kill)
+                    case FunctionResult.Sys_Kill:
                     {
                         return ThreadState.Killed;
                     }
-                    return ThreadState.Exception;
+                    default:
+                    {
+                        return ThreadState.Exception;
+                    }
                 }
-
-                if (_Frame == null)
-                {
-                    return ThreadState.Killed;
-                }
-
-                return ThreadState.Running;
+                
+                return _stackFrames.Count == 0 ? ThreadState.Killed : ThreadState.Running;
             }
 
 
@@ -240,25 +239,21 @@ namespace GreenBeanScript
                 _Stack2[_Base + p] = new Variable();
             }*/
 
-            StackFrame frame = new StackFrame();
-            frame.ReturnBase = _Stack2.BasePointer;
-            frame.InstructionPtr = _InstructionPtr;
-            frame.PreviousFrame = _Frame;
-            _Frame = frame;
+            StackFrame frame = new StackFrame {ReturnBase = _stack.BasePointer, InstructionPtr = _instructionPtr};
+            _stackFrames.Push(frame);
+      
 
             // Point to fn of new thread
-            _InstructionPtr = 0;
-            _Stack2.BasePointer = Base;
-            _Stack2.StackPointer = Base + Func.NumParamsLocals;
-            _Function = Func;
-            _Function.GetInstructions(ref _instructionList);
-            
-
+            _instructionPtr = 0;
+            _stack.BasePointer = Base;
+            _stack.StackPointer = Base + func.NumParamsLocals;
+            _function = func;
+            _instructionList = _function.Instructions;
             return ThreadState.Running;
         }
         #endregion
 
-        ByteCode.Instruction[] _instructionList;
+        private List<ByteCode.Instruction> _instructionList;
 
        
 
@@ -272,51 +267,59 @@ namespace GreenBeanScript
 
             for (; ; )
             {
-                if (_InstructionPtr >= _instructionList.Length)
+                if (_instructionPtr >= _instructionList.Count)
                     break;
 
-                var inst = _instructionList[_InstructionPtr++];
+                var inst = _instructionList[_instructionPtr++];
 
                 switch (inst.OpCode)
                 {
                     case ByteCode.Opcode.Pop:
                         {
-                            _Stack2.Pop();
+                            _stack.Pop();
                             break;
                         }
-
                     case ByteCode.Opcode.Pop2:
                         {
-                            _Stack2.Pop(2);
+                            _stack.Pop(2);
                             break;
                         }
-
                     case ByteCode.Opcode.Dup:
                         {
-                            _Stack2.Push(_Stack2.Peek());
+                            _stack.Push(_stack.Peek());
                             break;
                         }
-
                     case ByteCode.Opcode.Call:
                         {
                             // pop arg count from stack
-                            ThreadState res = PushStackFrame(inst[0].GetInteger(), _InstructionPtr);
+                            ThreadState res = PushStackFrame(inst[0].GetInteger());
 
-                            if (res == ThreadState.Running)
+                            switch (res)
                             {
-                                break;
+                                case ThreadState.Running:
+                                {
+                                    break;
+                                }
+                                case ThreadState.Sys_Yield:
+                                {
+                                    return ThreadState.Running;
+                                }
+                                case ThreadState.Exception:
+                                {
+                                    _machine.SwitchThreadState(this, ThreadState.Killed);
+                                    return ThreadState.Exception;
+                                }
+                                case ThreadState.Killed:
+                                {
+                                    _machine.SwitchThreadState(this, ThreadState.Killed);
+                                    break;
+                                }
+                                default:
+                                {
+                                    break;
+                                }
                             }
-                            if (res == ThreadState.Sys_Yield) return ThreadState.Running;
-                            if (res == ThreadState.Exception)
-                            {
-                                _machine.SwitchThreadState(this, ThreadState.Killed);
-                                return ThreadState.Exception;
-                            }
-                            if (res == ThreadState.Killed)
-                            {
-                                _machine.SwitchThreadState(this, ThreadState.Killed);
-                            }
-                            // if exception then die
+
 
                             break;
                         }
@@ -343,41 +346,38 @@ namespace GreenBeanScript
                         }
                     case ByteCode.Opcode.PushTbl:
                         {
-                            Push(_machine.CreateTable());
+                            Push(new TableObject());
                             break;
                         }
                     #endregion
                     case ByteCode.Opcode.Ret:          // Ret pushes a null
                         {
                             Push(Variable.Null);
-                            ThreadState res = PopStackFrame(_InstructionPtr);
-                            if (res == ThreadState.Running)
+                            ThreadState res = PopStackFrame();
+                            switch (res)
                             {
-                                break;
-                            }
-                            else if (res == ThreadState.Killed)
-                            {
-                                // Todo: Sort out return addr
-                                _machine.SwitchThreadState(this, ThreadState.Killed);
-                                return res;
-                            }
-                            else if (res == ThreadState.Exception)
-                            {
-                                _machine.SwitchThreadState(this, ThreadState.Exception);
-                                return ThreadState.Exception;
+                                case ThreadState.Exception:
+                                case ThreadState.Killed:
+                                {
+                                    _machine.SwitchThreadState(this, res);
+                                    return res;
+                                }
+                                default:
+                                {
+                                    break;
+                                }
                             }
                             break;
                         }
                     case ByteCode.Opcode.Retv:        
                         {
-                            ThreadState res = PopStackFrame(_InstructionPtr);
+                            ThreadState res = PopStackFrame();
                             if (res == ThreadState.Killed)
                             {
                                 return res;
                             }
                             break;
                         }
-//                    case ByteCode.Operator.GetDot:
                     case ByteCode.Opcode.SetGlobal:
                         {
                             Variable v1 = inst[0];
@@ -386,8 +386,7 @@ namespace GreenBeanScript
                                 throw new Exception("String required");
                             }
 
-                            Variable v2 = _Stack2.Pop();
-                            string GlobalName = v1.GetString();
+                            Variable v2 = _stack.Pop();
                             _machine.Globals[v1] = v2;
                             break;
                         }
@@ -399,7 +398,6 @@ namespace GreenBeanScript
                             {
                                 throw new Exception("String required");
                             }
-                            string GlobalName = v1.GetString();
                             var global = _machine.Globals[v1];
                             Push(global);
                             break;
@@ -408,13 +406,13 @@ namespace GreenBeanScript
                     case ByteCode.Opcode.SetLocal:
                         {
                             int offset = inst[0].GetInteger();
-                            _Stack2.PokeBase(offset, _Stack2.Pop());
+                            _stack.PokeBase(offset, _stack.Pop());
                             break;
                         }
                     case ByteCode.Opcode.GetLocal:
                         {
                             int offset = inst[0].GetInteger();
-                            Push(_Stack2.PeekBase(offset));
+                            Push(_stack.PeekBase(offset));
                             break;
                         }
                     #region Operators
@@ -500,8 +498,8 @@ namespace GreenBeanScript
                             {
                                 throw new NotImplementedException("Operator not mapped or implemented");
                             }
-                            var t1 = _Stack2.Peek(-1).TypeCode;
-                            var t2 = _Stack2.Peek(-2).TypeCode;
+                            var t1 = _stack.Peek(-1).TypeCode;
+                            var t2 = _stack.Peek(-2).TypeCode;
                             if (t2 > t1)
                             {
                                 t1 = t2;
@@ -510,8 +508,8 @@ namespace GreenBeanScript
                             OperatorCallback op = Machine.GetTypeOperator(t1, o);
                             if (op != null)
                             {
-                                var operand = _Stack2.StackPointer--;
-                                _Stack2.PokeAbs(operand - 2, op(this, _Stack2.PeekAbs(operand - 2), _Stack2.PeekAbs(operand - 1), _Stack2.PeekAbs(operand)));
+                                var operand = _stack.StackPointer--;
+                                _stack.PokeAbs(operand - 2, op(this, _stack.PeekAbs(operand - 2), _stack.PeekAbs(operand - 1), _stack.PeekAbs(operand)));
                             }
                             else
                             {
@@ -521,12 +519,12 @@ namespace GreenBeanScript
                         }
                     case ByteCode.Opcode.GetInd:
                     {
-                            var type = _Stack2.Peek(-2).TypeCode;
+                            var type = _stack.Peek(-2).TypeCode;
                             var op = Machine.GetTypeOperator(type, Operator.GetInd);
                             if (op != null)
                             {
-                                var operand = _Stack2.StackPointer--;
-                                _Stack2.PokeAbs(operand - 2, op(this, _Stack2.PeekAbs(operand - 2), _Stack2.PeekAbs(operand - 1), _Stack2.PeekAbs(operand)));
+                                var operand = _stack.StackPointer--;
+                                _stack.PokeAbs(operand - 2, op(this, _stack.PeekAbs(operand - 2), _stack.PeekAbs(operand - 1), _stack.PeekAbs(operand)));
                             }
                             else
                             {
@@ -536,12 +534,12 @@ namespace GreenBeanScript
                         }
                     case ByteCode.Opcode.SetInd:
                     {
-                        var topMin3 = _Stack2.Peek(-3);
+                        var topMin3 = _stack.Peek(-3);
                             OperatorCallback op = Machine.GetTypeOperator(topMin3.TypeCode, Operator.SetInd);
                             if (op != null)
                             {
-                                _Stack2.Poke(-3, op(this, topMin3, _Stack2.Peek(-2), _Stack2.Peek(-1)));
-                                _Stack2.StackPointer -= 3;
+                                _stack.Poke(-3, op(this, topMin3, _stack.Peek(-2), _stack.Peek(-1)));
+                                _stack.StackPointer -= 3;
                             }
                             else
                             {
@@ -551,7 +549,7 @@ namespace GreenBeanScript
                         }
                     case ByteCode.Opcode.ForEach:
                         {
-                            var topMin2 = _Stack2.Peek(-2);
+                            var topMin2 = _stack.Peek(-2);
                             TypeIteratorCallback itr = Machine.GetTypeIterator(topMin2.TypeCode);
                             if (itr == null)
                             {
@@ -559,21 +557,21 @@ namespace GreenBeanScript
                                 return ThreadState.Exception;
                             }
 
-                            var iteratorPos = _Stack2.Peek(-1).GetInteger();
-                            var obj = _Stack2.Peek(-2).GetReference();
-                            iteratorPos = itr(this, obj, iteratorPos, _Stack2.PeekBase(inst[1].GetInteger()), _Stack2.PeekBase(inst[0].GetInteger()));
+                            var iteratorPos = _stack.Peek(-1).GetInteger();
+                            var obj = _stack.Peek(-2).GetReference();
+                            iteratorPos = itr(this, obj, iteratorPos, _stack.PeekBase(inst[1].GetInteger()), _stack.PeekBase(inst[0].GetInteger()));
                             if (iteratorPos != -1)
                             {
                                 //_Stack2[_Base + Inst[1].GetInteger()] = Key;
                                 //_Stack2[_Base + Inst[0].GetInteger()] = Item;
-                                _Stack2.Poke(Variable.Zero);
+                                _stack.Poke(Variable.Zero);
                             }
                             else
                             {
-                                _Stack2.Poke(Variable.Zero);
+                                _stack.Poke(Variable.Zero);
                             }
-                            _Stack2.Poke(-1, iteratorPos);
-                            ++_Stack2.StackPointer;
+                            _stack.Poke(-1, iteratorPos);
+                            ++_stack.StackPointer;
 
 
                             break;
@@ -581,12 +579,12 @@ namespace GreenBeanScript
                     #region Dot Operators
                     case ByteCode.Opcode.GetDot:
                     {
-                            var v1 = _Stack2.Peek(-1);
+                            var v1 = _stack.Peek(-1);
                             OperatorCallback op = Machine.GetTypeOperator(v1.TypeCode, Operator.GetDot);
-                            _Stack2.Poke(inst[0]);
+                            _stack.Poke(inst[0]);
                             if (op != null)
                             {
-                                _Stack2.Poke(-1, op(this, v1, _Stack2.Peek(), _Stack2.Peek()));
+                                _stack.Poke(-1, op(this, v1, _stack.Peek(), _stack.Peek()));
                             }
                             else
                             {
@@ -596,13 +594,13 @@ namespace GreenBeanScript
                         }
                     case ByteCode.Opcode.SetDot:
                         {
-                            var v1 = _Stack2.Peek(-2);
+                            var v1 = _stack.Peek(-2);
                             OperatorCallback op = Machine.GetTypeOperator(v1.TypeCode, Operator.SetDot);
-                            _Stack2.Poke(inst[0]);
+                            _stack.Poke(inst[0]);
                             if (op != null)
                             {
-                                _Stack2.Poke(-2, op(this, _Stack2.Peek(-2), _Stack2.Peek(-1), _Stack2.Peek()));
-                                _Stack2.StackPointer -= 2;
+                                _stack.Poke(-2, op(this, _stack.Peek(-2), _stack.Peek(-1), _stack.Peek()));
+                                _stack.StackPointer -= 2;
                             }
                             else
                             {
@@ -615,65 +613,65 @@ namespace GreenBeanScript
                     #region Branch
                     case ByteCode.Opcode.Brz:
                         {
-                            var v = _Stack2.Pop();
+                            var v = _stack.Pop();
                             if (v.IsZero)
                             {
                                 var newIp = inst[0].GetInteger();
 
-                                if (newIp >= _instructionList.Length)
+                                if (newIp >= _instructionList.Count)
                                 {
                                     throw new Exception("BRZ: Corrupt IP");
                                 }
 
-                                _InstructionPtr = newIp;
+                                _instructionPtr = newIp;
                             }
                             break;
                         }
                     case ByteCode.Opcode.Brnz:
                     {
-                            var v = _Stack2.Pop();
+                            var v = _stack.Pop();
                             if (!v.IsZero)
                             {
                                 var newIp = inst[0].GetInteger();
 
-                                if (newIp >= _instructionList.Length)
+                                if (newIp >= _instructionList.Count)
                                 {
                                     throw new Exception("BRZ: Corrupt IP");
                                 }
 
-                                _InstructionPtr = newIp;
+                                _instructionPtr = newIp;
                             }
                             break;
                         }
                     case ByteCode.Opcode.Brzk:
                         {
-                            var v = _Stack2.Peek(-1);
+                            var v = _stack.Peek(-1);
                             if (v.IsZero)
                             {
                                 var newIp = inst[0].GetInteger();
 
-                                if (newIp >= _instructionList.Length)
+                                if (newIp >= _instructionList.Count)
                                 {
                                     throw new Exception("BRZ: Corrupt IP");
                                 }
 
-                                _InstructionPtr = newIp;
+                                _instructionPtr = newIp;
                             }
                             break;
                         }
                     case ByteCode.Opcode.Brnzk:
                         {
-                            var v = _Stack2.Peek(-1);
+                            var v = _stack.Peek(-1);
                             if (!v.IsZero)
                             {
                                 var newIp = inst[0].GetInteger();
 
-                                if (newIp >= _instructionList.Length)
+                                if (newIp >= _instructionList.Count)
                                 {
                                     throw new Exception("BRNZK: Corrupt IP");
                                 }
 
-                                _InstructionPtr = newIp;
+                                _instructionPtr = newIp;
                             }
                             break;
                         }
@@ -681,12 +679,12 @@ namespace GreenBeanScript
                         {
                             var newIp = inst[0].GetInteger();
 
-                            if (newIp >= _instructionList.Length)
+                            if (newIp >= _instructionList.Count)
                             {
                                 throw new Exception("BRA: Corrupt IP");
                             }
 
-                            _InstructionPtr = newIp;
+                            _instructionPtr = newIp;
                             break;
                         }
                     #endregion
@@ -701,15 +699,15 @@ namespace GreenBeanScript
         }
 
 
-        protected FunctionObject _Function;
-        protected Machine _machine;
-        internal StackFrame _Frame;
-        protected int _ThreadId = 0;
-        protected ThreadState _State;
+        private FunctionObject _function;
+        private readonly Machine _machine;
+        private readonly Stack<StackFrame> _stackFrames = new Stack<StackFrame>();
+        private readonly int _threadId;
+        private ThreadState _state;
 
-        protected int _InstructionPtr = 0;
-        protected int _NumParameters = 0;
-        protected List<Variable> _Blocks;
-        protected ThreadStack _Stack2 = new ThreadStack(); 
+        private int _instructionPtr;
+        private int _paramCount;
+        private List<Variable> _blocks;
+        private readonly ThreadStack _stack = new ThreadStack(); 
     }
 }

@@ -138,7 +138,7 @@ namespace GreenBeanScript.Libs
                 {
                     thread.Push(ScriptThread.Param(i));
                 }
-                thread.PushStackFrame(ScriptThread.ParameterCount - 1, 0);
+                thread.PushStackFrame(ScriptThread.ParameterCount - 1);
             }
             else
             {

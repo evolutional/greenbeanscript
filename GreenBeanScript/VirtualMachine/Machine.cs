@@ -8,27 +8,21 @@ namespace GreenBeanScript
 {
     public class Machine
     {
-        protected List<FunctionObject> _Functions;
-        protected List<TableObject> _Tables;
-     
-
         // Add the GreenBean Standard Lib
-        internal Libs.StdLibrary _StandardLibary;
+        internal Libs.StdLibrary StandardLibary;
 
 
         public Machine(StdLibrary stdlibrary)
         {
             _NextTypeId = (int)VariableType.UserType;
-            _Functions = new List<FunctionObject>();
-            _Tables = new List<TableObject>();
             _Log = new Log();
-            _Globals = CreateTable();
+            _Globals = new TableObject();
             //
             InitialiseDefaultTypes();
 
 
             // Bind standard library to machine
-            _StandardLibary = stdlibrary;
+            StandardLibary = stdlibrary;
             stdlibrary.RegisterLibrary(this);
 
         }
@@ -37,20 +31,6 @@ namespace GreenBeanScript
         }
 
         #region Create Object Methods
-        #region FunctionObject
-        public FunctionObject CreateFunction(NativeFunctionCallback Function)
-        {
-            FunctionObject func = new FunctionObject(Function);
-            _Functions.Add(func);
-            return _Functions[_Functions.Count];
-        }
-
-        public FunctionObject CreateFunction()
-        {
-            FunctionObject func = new FunctionObject();
-            _Functions.Add(func);
-            return _Functions[_Functions.Count];
-        }
 
         #region Thread Functions
         /// <summary>
@@ -59,62 +39,50 @@ namespace GreenBeanScript
         /// <returns></returns>
         public Thread CreateThread()
         {
-            Thread newThread = new Thread(this);
-            newThread.SetId(_NextThreadId++);
-            newThread.SetState(ThreadState.Running);
+            Thread newThread = new Thread(_NextThreadId++, this);
             _RunningThreads.Add(newThread);
             return newThread;
         }
         /// <summary>
         /// Creates a thread with no parameters to the main function
         /// </summary>
-        /// <param name="ThreadFunction"></param>
+        /// <param name="threadFunction"></param>
         /// <param name="This"></param>
         /// <returns></returns>
-        public Thread CreateThread(FunctionObject ThreadFunction, Variable This)
+        public Thread CreateThread(FunctionObject threadFunction, Variable This)
         {
-            Thread newThread = new Thread(this, ThreadFunction);
-            newThread.SetId(_NextThreadId++);
+            Thread newThread = new Thread(_NextThreadId++, this, threadFunction);
 #if GM_DEBUG_MACHINE
             // TODO: Notify of thread creation
 #endif
-            newThread.SetState(ThreadState.Running);
             _RunningThreads.Add(newThread);
             newThread.Push(This);// push this
-            newThread.PushFunction(ThreadFunction);
-            newThread.PushStackFrame(0, 0);
+            newThread.PushFunction(threadFunction);
+            newThread.PushStackFrame(0);
             return newThread;
         }
         /// <summary>
         /// Creates a thread with no parameters to the main function and Null passed as This
         /// </summary>
-        /// <param name="ThreadFunction"></param>
+        /// <param name="threadFunction"></param>
         /// <returns></returns>
-        public Thread CreateThread(FunctionObject ThreadFunction)
+        public Thread CreateThread(FunctionObject threadFunction)
         {
-            return CreateThread(ThreadFunction, new Variable());
+            return CreateThread(threadFunction, new Variable());
         }
-        #endregion
-        #endregion
-        #region TableObject
-        public TableObject CreateTable()
-        {
-            TableObject obj = new TableObject();
-            _Tables.Add(obj);
-            return obj;
-        }
-
         #endregion
         #endregion
 
 
-        public void SetGlobal(string GlobalName, Variable Value)
+
+        public void SetGlobal(string globalName, Variable value)
         {
-            _Globals[new Variable(GlobalName)] = Value;
+            _Globals[new Variable(globalName)] = value;
         }
-        public void SetGlobal(int GlobalId, Variable Value)
+
+        public void SetGlobal(int globalId, Variable value)
         {
-           // _Globals[GlobalId] = Value;
+           _Globals[globalId] = value;
         }
 
         public TableObject Globals
@@ -254,18 +222,18 @@ namespace GreenBeanScript
 
         public OperatorCallback GetTypeOperator(int TypeId, Operator Op)
         {
-            if (!_TypeIdLookups.Contains(TypeId))
+            if (!_typeIdLookups.Contains(TypeId))
                 return null;
 
-            return _TypeIdLookups[TypeId].GetOperator(Op);
+            return _typeIdLookups[TypeId].GetOperator(Op);
         }
 
         public TypeIteratorCallback GetTypeIterator(int TypeId)
         {
-            if (!_TypeIdLookups.Contains(TypeId))
+            if (!_typeIdLookups.Contains(TypeId))
                 return null;
 
-            return _TypeIdLookups[TypeId].GetIterator();
+            return _typeIdLookups[TypeId].GetIterator();
         }
 
         public void RegisterFunction(string FunctionName, NativeFunctionCallback Function)
@@ -277,7 +245,7 @@ namespace GreenBeanScript
         {
             ScriptType Type = new ScriptType(TypeName, TypeId);
             Operators.Initialise(this, Type);
-            _TypeIdLookups.Add(Type);
+            _typeIdLookups.Add(Type);
             _TypeNameLookups[Type.TypeName] = Type;
         }
 
@@ -291,7 +259,7 @@ namespace GreenBeanScript
 
         protected Dictionary<string, ScriptType> _TypeNameLookups = new Dictionary<string, ScriptType>();
         //protected Dictionary<int, ScriptType> _TypeIdLookups = new Dictionary<int, ScriptType>();
-        ScriptTypeCollection _TypeIdLookups = new ScriptTypeCollection();
+        readonly ScriptTypeCollection _typeIdLookups = new ScriptTypeCollection();
 
         protected List<Thread> _RunningThreads = new List<Thread>();
         protected List<Thread> _KilledThreads = new List<Thread>();

@@ -12,7 +12,7 @@ namespace GreenBeanScript
         private int _NumParams = 0;
         private int _NumParamsLocals = 0;
 
-        private ByteCode.Instruction[] _Instructions;
+        private List<ByteCode.Instruction> _Instructions;
         private NativeFunctionCallback _NativeCallback;
 
         public int NumParams
@@ -25,14 +25,9 @@ namespace GreenBeanScript
             get { return _NumParamsLocals; }
         }
 
-        internal ByteCode.Instruction[] Instructions
+        internal List<ByteCode.Instruction> Instructions
         {
             get { return _Instructions; }
-        }
-
-        internal void GetInstructions(ref ByteCode.Instruction[] Instructions)
-        {
-            Instructions = _Instructions;
         }
 
         public NativeFunctionCallback Native
@@ -51,7 +46,7 @@ namespace GreenBeanScript
 
         internal void Initialise(List<ByteCode.Instruction> Instructions, int NumLocals, int NumParameters)
         {
-            _Instructions = Instructions.ToArray();
+            _Instructions = Instructions;
 
             _NumLocals = NumLocals;
             _NumParams = NumParameters;

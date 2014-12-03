@@ -539,7 +539,7 @@ namespace GreenBeanScript
             // Loop back over the newly loaded functions and set the functionobjects for each reference
             for (int funcid = 0; funcid < numFunctions; ++funcid)
             {
-                ByteCode.Instruction[] InstructionList = functionObjects[funcid].Instructions;
+                var InstructionList = functionObjects[funcid].Instructions;
                 int InstructionId = 0;
                 foreach (ByteCode.Instruction instruction in InstructionList)
                 {
@@ -553,7 +553,7 @@ namespace GreenBeanScript
                         )
                     {
                         // Loop through and find the 
-                        for (int INum = 0; INum < InstructionList.Length; ++INum )
+                        for (int INum = 0; INum < InstructionList.Count; ++INum )
                         {
                             if (InstructionList[INum].ByteCodeOffset == instruction[0].GetInteger())
                             {
