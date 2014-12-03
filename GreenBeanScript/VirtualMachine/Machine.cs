@@ -9,7 +9,7 @@ namespace GreenBeanScript
     public class Machine
     {
         // Add the GreenBean Standard Lib
-        internal Libs.StdLibrary StandardLibary;
+        private StdLibrary StandardLibary;
 
 
         public Machine(StdLibrary stdlibrary)
@@ -43,6 +43,7 @@ namespace GreenBeanScript
             _RunningThreads.Add(newThread);
             return newThread;
         }
+
         /// <summary>
         /// Creates a thread with no parameters to the main function
         /// </summary>
@@ -52,9 +53,7 @@ namespace GreenBeanScript
         public Thread CreateThread(FunctionObject threadFunction, Variable This)
         {
             Thread newThread = new Thread(_NextThreadId++, this, threadFunction);
-#if GM_DEBUG_MACHINE
             // TODO: Notify of thread creation
-#endif
             _RunningThreads.Add(newThread);
             newThread.Push(This);// push this
             newThread.PushFunction(threadFunction);
@@ -269,10 +268,7 @@ namespace GreenBeanScript
 
         protected int _NextThreadId = 1;
         protected int _NextTypeId;
-        protected int _Top;
-        protected int _Base = 0;
         //protected Stack<Variable> _Stack = new Stack<Variable>();
-        protected Variable[] _Stack2 = new Variable[256];   // Stack
         protected Log _Log;
         protected TableObject _Globals;
     }
