@@ -1,47 +1,41 @@
-GreenBean Script
-================
+GreenBean Script Prototype
+===
 
+GreenBean script is an old (circa 2010) and flawed prototype implementation of the [GameMonkey Script] Virtual Machine in C# / .NET 2.0.
 
-GreenBean script is an old (circa 2010), somewhat flawed prototype implementation of the [GameMonkey Script] Virtual Machine in C# / .NET 2.0.
+It was designed to be *bytecode compatible* with the original [GameMonkey Script] VM, and as such includes the same instruction set and types as the VM at the time.
 
-It was designed to be bytecode compatible with the original [GameMonkey Script] VM, and as such includes the same instruction set and types.
-
-There is no compiler implementation, so as a result you have to hand craft the machine bytecode into a "Library" and feed it to the machine. I believe you can load a library from a file if you are able to export one from the C++ version of GM.
+There is no compiler implementation, so as a result you have to hand craft the machine bytecode into a "Library" and feed it to the machine. You can load a library from a file if you are able to export one from the C++ version of GM.
 
 As this is very old prototype code, there are many missing features, no tests and no guarantees it'll even work. There are certainly no guarantees of further development on it :)
 
-I'm putting this on Github to give it back to the GameMonkey community to learn from, enhance or abuse in whatever way they desire.
+I'm putting this on Github to give it to the GameMonkey community to learn from, enhance or abuse in whatever way they desire.
+
+## Missing Features ##
+At this point it's easier to say what's missing than what's there...
+
+- You cannot write GameMonkey Script code and compile it as there is no compiler
+- Most of the standard machine library is missing
+- Missing operators and extensions (fork, inc/dec ops, endon, maybe others)
+- Signal/Block/Yield not implemented
+- Performance is horrendously bad (matrix.gm runs ~4s in C++ and ~13s in .NET on my machine)
+- Huge inconsistencies all over
+- Barely any test in place
+
+## Refactor & Revival ##
+
+
+After posting this old code on Github, I decided to start refactoring the code into something useful. I've added some simple regression tests that forced the implementation of a couple of operators and the fixing of some fairly horrible bugs that existed in the original commit.
 
 
 
-License
-----
+## MIT License ##
 
-The MIT License (MIT)
-
-Copyright (c) 2010 Oli Wilkinson
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Like the original [GameMonkey Script], GreenBean Script is released under the MIT license.
 
 
-Acknowledgements
----
+## Acknowledgements ##
+
 GreenBean Script is based upon "GameMonkey Script", copyright (c) 2003 Auran Development Ltd.
 The website for GameMonkey Script can be found at http://gmscript.com
 Many thanks go to Greg Douglas and Matthew Riek for their work on GameMonkey Script now and in the future.
