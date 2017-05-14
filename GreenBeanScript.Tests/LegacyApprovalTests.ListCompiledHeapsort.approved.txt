@@ -1,4 +1,4 @@
-﻿GM LIBRARY D:\Dev\greenbeanscript\GreenBeanScript.Tests\ExampleScripts\heapsort.gml, DEBUG=0
+﻿GM LIBRARY C:\dev\greenbeanscript\GreenBeanScript.Tests\ExampleScripts\heapsort.gml, DEBUG=0
 
 STRING TABLE, SIZE=   37
 ===============================================================================
