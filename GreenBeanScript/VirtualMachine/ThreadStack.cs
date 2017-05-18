@@ -3,8 +3,7 @@
     public class ThreadStack
     {
         private readonly Variable[] _stack = new Variable[16384]; // Stack
-
-
+        
         public int StackPointer { get; set; }
 
         public int BasePointer { get; set; }

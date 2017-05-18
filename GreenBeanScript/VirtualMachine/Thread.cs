@@ -9,9 +9,7 @@ namespace GreenBeanScript.VirtualMachine
     {
         private readonly ThreadStack _stack = new ThreadStack();
         private readonly Stack<StackFrame> _stackFrames = new Stack<StackFrame>();
-        private List<Variable> _blocks;
-
-
+        
         private FunctionObject _function;
 
         private List<Instruction> _instructionList;
@@ -516,7 +514,7 @@ namespace GreenBeanScript.VirtualMachine
         {
             if (_stackFrames.Count == 0)
             {
-                LogException("Stack undeflow");
+                LogException("Stack underflow");
                 return ThreadState.Exception;
             }
 
@@ -535,22 +533,6 @@ namespace GreenBeanScript.VirtualMachine
             _function = Function;
             _instructionList = _function.Instructions;
             return ThreadState.Running;
-        }
-
-        internal int SetBlocks(ref Variable[] blocks)
-        {
-            if (blocks.Length == 0)
-                return 0;
-
-            if (_blocks == null)
-                _blocks = new List<Variable>();
-
-            foreach (var block in blocks)
-                if (!_blocks.Contains(block))
-                    _blocks.Add(block);
-
-
-            return 0;
         }
 
         internal ThreadState PushStackFrame(int parameterCount)
