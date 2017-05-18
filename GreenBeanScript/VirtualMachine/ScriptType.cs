@@ -1,29 +1,24 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Text;
+﻿using GreenBeanScript.VirtualMachine.Operations;
 
-namespace GreenBeanScript
+namespace GreenBeanScript.VirtualMachine
 {
-    public delegate int TypeIteratorCallback(Thread ScriptThread, object Object, int IteratorPosition, Variable Key, Variable Item );
-
-    public class ScriptTypeCollection : KeyedCollection<int, ScriptType>
-    {
-        protected override int GetKeyForItem(ScriptType item)
-        {
-            return item.TypeCode;
-        }
-    }
-
     public class ScriptType
     {
-        public ScriptType(string TypeName, int TypeCode)
+        protected TypeIteratorCallback IteratorFunction;
+
+        protected OperatorCallback[] Operators;
+        protected int _TypeCode;
+        protected string _TypeName;
+
+        public ScriptType(string typeName, int typeCode)
         {
-            _TypeName = TypeName;
-            _TypeCode = TypeCode;
-            _Operators = new OperatorCallback[(int)Operator._MAX];
+            _TypeName = typeName;
+            _TypeCode = typeCode;
+            Operators = new OperatorCallback[(int) Operator.Max];
         }
 
         #region Properties
+
         public int TypeCode
         {
             get { return _TypeCode; }
@@ -33,30 +28,31 @@ namespace GreenBeanScript
         {
             get { return _TypeName; }
         }
+
         #endregion
 
         #region Methods
-        public void SetIterator(TypeIteratorCallback Itr)
+
+        public void SetIterator(TypeIteratorCallback itr)
         {
-            _IteratorFunction = Itr;
+            IteratorFunction = itr;
         }
+
         public TypeIteratorCallback GetIterator()
         {
-            return _IteratorFunction;
+            return IteratorFunction;
         }
+
         public OperatorCallback GetOperator(Operator op)
         {
-            return _Operators[(int)op];
+            return Operators[(int) op];
         }
+
         public void SetOperator(Operator op, OperatorCallback cb)
         {
-            _Operators[(int)op] = cb;
+            Operators[(int) op] = cb;
         }
-        #endregion
 
-        protected OperatorCallback [] _Operators;
-        protected TypeIteratorCallback _IteratorFunction;
-        protected string _TypeName;
-        protected int _TypeCode;
+        #endregion
     }
 }

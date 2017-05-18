@@ -1,60 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using GreenBeanScript.VirtualMachine.ByteCode;
 
-
-
-namespace GreenBeanScript
+namespace GreenBeanScript.VirtualMachine
 {
     public class FunctionObject
     {
-        private int _NumLocals = 0;
-        private int _NumParams = 0;
-        private int _NumParamsLocals = 0;
-
-        private List<ByteCode.Instruction> _Instructions;
-        private NativeFunctionCallback _NativeCallback;
-
-        public int NumParams
-        {
-            get { return _NumParams; }
-        }
-
-        public int NumParamsLocals
-        {
-            get { return _NumParamsLocals; }
-        }
-
-        internal List<ByteCode.Instruction> Instructions
-        {
-            get { return _Instructions; }
-        }
-
-        public NativeFunctionCallback Native
-        {
-            get { return _NativeCallback; }
-        }
+        private int _numLocals;
 
         internal FunctionObject()
         {
         }
 
-        internal FunctionObject(NativeFunctionCallback Native)
+        internal FunctionObject(NativeFunctionCallback native)
         {
-            _NativeCallback = Native;
+            this.Native = native;
         }
 
-        internal void Initialise(List<ByteCode.Instruction> Instructions, int NumLocals, int NumParameters)
+        public int NumParams { get; private set; }
+
+        public int NumParamsLocals { get; private set; }
+
+        internal List<Instruction> Instructions { get; private set; }
+
+        public NativeFunctionCallback Native { get; }
+
+        internal void Initialise(List<Instruction> instructions, int numLocals, int numParameters)
         {
-            _Instructions = Instructions;
+            this.Instructions = instructions;
 
-            _NumLocals = NumLocals;
-            _NumParams = NumParameters;
-            _NumParamsLocals = _NumLocals + _NumParams;
-
+            _numLocals = numLocals;
+            NumParams = numParameters;
+            NumParamsLocals = _numLocals + NumParams;
         }
-
-
-
     }
 }

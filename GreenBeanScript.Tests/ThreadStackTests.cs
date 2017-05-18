@@ -1,5 +1,4 @@
-﻿using System;
-using FluentAssertions;
+﻿using FluentAssertions;
 using GreenBeanScript.VirtualMachine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -172,6 +171,5 @@ namespace GreenBeanScript.Tests
             var result = uut.PeekBase(-1);
             result.GetInteger().Should().Be(5);
         }
-
     }
 }

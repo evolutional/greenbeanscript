@@ -56,27 +56,39 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Libs\StdLibrary.cs" />
-    <Compile Include="VirtualMachine\ByteCode.cs" />
-    <Compile Include="VirtualMachine\Function.cs" />
+    <Compile Include="VirtualMachine\Instruction.cs" />
+    <Compile Include="VirtualMachine\FunctionResult.cs" />
     <Compile Include="VirtualMachine\FunctionObject.cs" />
+    <Compile Include="VirtualMachine\FileFormat\GmlFunction.cs" />
+    <Compile Include="VirtualMachine\FileFormat\GmlHeader.cs" />
+    <Compile Include="VirtualMachine\FileFormat\GmlLineInfo.cs" />
     <Compile Include="VirtualMachine\Library.cs" />
     <Compile Include="VirtualMachine\Log.cs" />
-    <Compile Include="VirtualMachine\Operations\Float.cs" />
-    <Compile Include="VirtualMachine\Operations\Integer.cs" />
-    <Compile Include="VirtualMachine\Operations\String.cs" />
-    <Compile Include="VirtualMachine\Operations\TableObject.cs" />
-    <Compile Include="VirtualMachine\Operations\OperatorCallbacks.cs" />
+    <Compile Include="VirtualMachine\NativeFunctionCallback.cs" />
+    <Compile Include="VirtualMachine\Opcode.cs" />
+    <Compile Include="VirtualMachine\Operations\FloatOperators.cs" />
+    <Compile Include="VirtualMachine\Operations\IntegerOperators.cs" />
+    <Compile Include="VirtualMachine\Operations\Operator.cs" />
+    <Compile Include="VirtualMachine\Operations\OperatorCallback.cs" />
+    <Compile Include="VirtualMachine\Operations\StringOperators.cs" />
+    <Compile Include="VirtualMachine\Operations\TableOperators.cs" />
+    <Compile Include="VirtualMachine\Operations\TypeOperators.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VirtualMachine\ScriptType.cs" />
+    <Compile Include="VirtualMachine\ScriptTypeCollection.cs" />
+    <Compile Include="VirtualMachine\StackFrame.cs" />
+    <Compile Include="VirtualMachine\StringTable.cs" />
+    <Compile Include="VirtualMachine\StringTableIem.cs" />
+    <Compile Include="VirtualMachine\TableNode.cs" />
     <Compile Include="VirtualMachine\TableObject.cs" />
     <Compile Include="VirtualMachine\Thread.cs" />
     <Compile Include="VirtualMachine\ThreadExtensions.cs" />
     <Compile Include="VirtualMachine\ThreadStack.cs" />
+    <Compile Include="VirtualMachine\ThreadState.cs" />
+    <Compile Include="VirtualMachine\TypeIteratorCallback.cs" />
     <Compile Include="VirtualMachine\Variable.cs" />
     <Compile Include="VirtualMachine\Machine.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="VirtualMachine\Blocks.cs" />
+    <Compile Include="VirtualMachine\VariableType.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

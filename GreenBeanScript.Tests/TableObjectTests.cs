@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using GreenBeanScript.VirtualMachine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GreenBeanScript.Tests
@@ -34,6 +35,5 @@ namespace GreenBeanScript.Tests
             result.IsNull.Should().BeFalse();
             result.GetString().Should().Be("value");
         }
-
     }
 }

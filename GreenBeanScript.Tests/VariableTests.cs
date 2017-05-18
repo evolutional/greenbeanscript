@@ -1,5 +1,5 @@
-﻿using System;
-using FluentAssertions;
+﻿using FluentAssertions;
+using GreenBeanScript.VirtualMachine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GreenBeanScript.Tests

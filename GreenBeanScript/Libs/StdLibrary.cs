@@ -1,17 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
+using GreenBeanScript.VirtualMachine;
 
 namespace GreenBeanScript.Libs
 {
     /// <summary>
-    /// The GreenBean Standard library contains the standard base functions available in the default GB environment
+    ///     The GreenBean Standard library contains the standard base functions available in the default GB environment
     /// </summary>
     public class StdLibrary
     {
-        static DateTime TickTime = DateTime.Now;
+        private static DateTime _tickTime = DateTime.Now;
 
-        private readonly Action<string> _printCallback; 
+        private readonly Action<string> _printCallback;
 
         public StdLibrary()
         {
@@ -24,34 +24,34 @@ namespace GreenBeanScript.Libs
         }
 
         /// <summary>
-        /// Used to return the number of ticks since the last check
+        ///     Used to return the number of ticks since the last check
         /// </summary>
-        /// <param name="ScriptThread"></param>
+        /// <param name="scriptThread"></param>
         /// <returns></returns>
-        protected FunctionResult Tick(Thread ScriptThread)
+        protected FunctionResult Tick(Thread scriptThread)
         {
-            DateTime lastTick = TickTime;
-            TickTime = System.DateTime.Now;
-            TimeSpan d = TickTime.Subtract(lastTick);
-            ScriptThread.PushInteger((d.Minutes*60)+d.Seconds);
+            var lastTick = _tickTime;
+            _tickTime = DateTime.Now;
+            var d = _tickTime.Subtract(lastTick);
+            scriptThread.PushInteger(d.Minutes*60 + d.Seconds);
             return FunctionResult.Ok;
         }
 
         /// <summary>
-        /// Prints output to the console (will change)
+        ///     Prints output to the console (will change)
         /// </summary>
-        /// <param name="ScriptThread"></param>
+        /// <param name="scriptThread"></param>
         /// <returns></returns>
-        protected FunctionResult PrintFunction(Thread ScriptThread)
+        protected FunctionResult PrintFunction(Thread scriptThread)
         {
             var sb = new StringBuilder();
-            for (int paramid = 0; paramid < ScriptThread.ParameterCount; ++paramid)
+            for (var paramid = 0; paramid < scriptThread.ParameterCount; ++paramid)
             {
-                Variable p = ScriptThread.Param(paramid);
+                var p = scriptThread.Param(paramid);
 
-                sb.Append(p.ToString());
+                sb.Append(p);
 
-                if (paramid < ScriptThread.ParameterCount - 1)
+                if (paramid < scriptThread.ParameterCount - 1)
                     sb.Append(" ");
             }
 
@@ -59,14 +59,12 @@ namespace GreenBeanScript.Libs
             return FunctionResult.Ok;
         }
 
-        protected FunctionResult FormatFunction(Thread ScriptThread)
+        protected FunctionResult FormatFunction(Thread scriptThread)
         {
-            if (ScriptThread.ParameterCount < 1)
-            {
+            if (scriptThread.ParameterCount < 1)
                 return FunctionResult.Exception;
-            }
 
-            var format = ScriptThread.Param(0).GetString();
+            var format = scriptThread.Param(0).GetString();
             var sb = new StringBuilder();
             var param = 1;
             var charnum = 0;
@@ -74,7 +72,7 @@ namespace GreenBeanScript.Libs
             while (charnum < format.Length)
             {
                 var c = format[charnum];
-                
+
                 if (c == '%')
                 {
                     var c1 = format[charnum + 1];
@@ -83,11 +81,9 @@ namespace GreenBeanScript.Libs
                         case 'X':
                         case 'x':
                         {
-                            if (!ScriptThread.Param(param).IsInt)
-                            {
+                            if (!scriptThread.Param(param).IsInt)
                                 return FunctionResult.Exception;
-                            }
-                            sb.AppendFormat("{0:X}", ScriptThread.Param(param).GetIntegerNoCheck());
+                            sb.AppendFormat("{0:X}", scriptThread.Param(param).GetIntegerNoCheck());
                             ++param;
                             break;
                         }
@@ -101,118 +97,111 @@ namespace GreenBeanScript.Libs
                     ++charnum;
                 }
             }
-        
-            ScriptThread.PushString(sb.ToString());
+
+            scriptThread.PushString(sb.ToString());
 
             return FunctionResult.Ok;
+        }
+
+        /// <summary>
+        ///     Registers the library with the VM
+        /// </summary>
+        /// <param name="vm"></param>
+        /// <returns></returns>
+        public bool RegisterLibrary(Machine vm)
+        {
+            vm.RegisterFunction("print", PrintFunction);
+            vm.RegisterFunction("format", FormatFunction);
+
+
+            vm.RegisterFunction("thread", ThreadFunction);
+            vm.RegisterFunction("block", BlockFunction);
+
+            vm.RegisterFunction("TICK", Tick);
+            return true;
         }
 
         #region Thread Library
+
         /// <summary>
-        /// Registers the "thread" function which creates a VM thread
+        ///     Registers the "thread" function which creates a VM thread
         /// </summary>
-        /// <param name="ScriptThread"></param>
+        /// <param name="scriptThread"></param>
         /// <returns></returns>
-        protected FunctionResult ThreadFunction(Thread ScriptThread)
+        protected FunctionResult ThreadFunction(Thread scriptThread)
         {
-            if (ScriptThread.ParameterCount != 1)
+            if (scriptThread.ParameterCount != 1)
             {
-                ScriptThread.LogException("Expecting 1 parameter");
+                scriptThread.LogException("Expecting 1 parameter");
                 return FunctionResult.Exception;
             }
 
-            FunctionObject Func = ScriptThread.Param(0).GetFunction();
+            var func = scriptThread.Param(0).GetFunction();
 
-            if (Func == null)
+            if (func == null)
             {
-                ScriptThread.LogException("Expecting parameter 1 as function");
+                scriptThread.LogException("Expecting parameter 1 as function");
                 return FunctionResult.Exception;
             }
             // Create a GB VM thread
-            Thread thread = ScriptThread.Machine.CreateThread();
+            var thread = scriptThread.Machine.CreateThread();
             if (thread != null)
             {
-                thread.Push(ScriptThread.This);
-                thread.PushFunction(Func);
-                for (int i = 0; i < ScriptThread.ParameterCount - 1; ++i)
-                {
-                    thread.Push(ScriptThread.Param(i));
-                }
-                thread.PushStackFrame(ScriptThread.ParameterCount - 1);
+                thread.Push(scriptThread.This);
+                thread.PushFunction(func);
+                for (var i = 0; i < scriptThread.ParameterCount - 1; ++i)
+                    thread.Push(scriptThread.Param(i));
+                thread.PushStackFrame(scriptThread.ParameterCount - 1);
             }
             else
             {
-                ScriptThread.LogException("Error creating new thread");
+                scriptThread.LogException("Error creating new thread");
                 return FunctionResult.Exception;
             }
             // Return Id to script
-            ScriptThread.PushInteger(thread.Id);
+            scriptThread.PushInteger(thread.Id);
             return FunctionResult.Ok;
         }
 
         /// <summary>
-        /// Blocks this thread on the specified variables
+        ///     Blocks this thread on the specified variables
         /// </summary>
-        /// <param name="ScriptThread"></param>
+        /// <param name="scriptThread"></param>
         /// <returns></returns>
-        protected FunctionResult BlockFunction(Thread ScriptThread)
+        protected FunctionResult BlockFunction(Thread scriptThread)
         {
-            if (ScriptThread.ParameterCount != 0)
+            if (scriptThread.ParameterCount != 0)
             {
-                ScriptThread.LogException("Expected 1 or more parameter");
+                scriptThread.LogException("Expected 1 or more parameter");
                 return FunctionResult.Exception;
             }
 
-            Variable[] BlockList = new Variable[ScriptThread.ParameterCount];
-            for (int p = 0; p < ScriptThread.ParameterCount; ++p)
-            {
-                BlockList[p] = ScriptThread.Param(p);
-            }
+            var blockList = new Variable[scriptThread.ParameterCount];
+            for (var p = 0; p < scriptThread.ParameterCount; ++p)
+                blockList[p] = scriptThread.Param(p);
 
-            int res = ScriptThread.Machine.SetBlocks(ScriptThread, BlockList);
+            var res = scriptThread.Machine.SetBlocks(scriptThread, blockList);
 
             if (res == -1)
-            {
-                return FunctionResult.Sys_Block;
-            }
-            else if (res == -2)
-            {
-                return FunctionResult.Sys_Yield;
-            }
+                return FunctionResult.SysBlock;
+            if (res == -2)
+                return FunctionResult.SysYield;
             // One of the blocks has a corresonding signal, return which one
-            ScriptThread.Push(BlockList[res]);
+            scriptThread.Push(blockList[res]);
             return FunctionResult.Ok;
         }
 
         /// <summary>
-        /// The signal() callback to send a signal to a thread
+        ///     The signal() callback to send a signal to a thread
         /// </summary>
-        /// <param name="ScriptThread"></param>
+        /// <param name="scriptThread"></param>
         /// <returns></returns>
-        protected FunctionResult SignalFunction(Thread ScriptThread)
+        protected FunctionResult SignalFunction(Thread scriptThread)
         {
             // TODO: Implement!
             return FunctionResult.Exception;
         }
+
         #endregion
-
-        /// <summary>
-        /// Registers the library with the VM
-        /// </summary>
-        /// <param name="Vm"></param>
-        /// <returns></returns>
-        public bool RegisterLibrary(Machine Vm)
-        {
-            Vm.RegisterFunction("print", PrintFunction);
-            Vm.RegisterFunction("format", FormatFunction);
-
-
-            Vm.RegisterFunction("thread", ThreadFunction);
-            Vm.RegisterFunction("block", BlockFunction);
-
-            Vm.RegisterFunction("TICK", Tick);
-            return true;
-        }
-
     }
 }

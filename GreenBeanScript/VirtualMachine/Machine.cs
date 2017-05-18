@@ -1,20 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections;
-using System.Text;
 using GreenBeanScript.Libs;
+using GreenBeanScript.VirtualMachine.Operations;
 
-namespace GreenBeanScript
+namespace GreenBeanScript.VirtualMachine
 {
     public class Machine
     {
+        //protected Dictionary<int, ScriptType> _TypeIdLookups = new Dictionary<int, ScriptType>();
+        private readonly ScriptTypeCollection _typeIdLookups = new ScriptTypeCollection();
+        protected List<Thread> BlockedThreads = new List<Thread>();
+        protected List<Thread> ExceptionThreads = new List<Thread>();
+        protected TableObject _Globals;
+        protected List<Thread> KilledThreads = new List<Thread>();
+        //protected Stack<Variable> _Stack = new Stack<Variable>();
+        protected Log _Log;
+
+        protected int NextThreadId = 1;
+        protected int NextTypeId;
+
+        protected List<Thread> RunningThreads = new List<Thread>();
+        protected List<Thread> SleepingThreads = new List<Thread>();
+
+        protected Dictionary<string, ScriptType> TypeNameLookups = new Dictionary<string, ScriptType>();
         // Add the GreenBean Standard Lib
-        private StdLibrary StandardLibary;
+        private StdLibrary _standardLibary;
 
 
         public Machine(StdLibrary stdlibrary)
         {
-            _NextTypeId = (int)VariableType.UserType;
+            NextTypeId = (int) VariableType.UserType;
             _Log = new Log();
             _Globals = new TableObject();
             //
@@ -22,66 +37,12 @@ namespace GreenBeanScript
 
 
             // Bind standard library to machine
-            StandardLibary = stdlibrary;
+            _standardLibary = stdlibrary;
             stdlibrary.RegisterLibrary(this);
-
         }
+
         public Machine() : this(new StdLibrary())
         {
-        }
-
-        #region Create Object Methods
-
-        #region Thread Functions
-        /// <summary>
-        /// Creates a basic thread
-        /// </summary>
-        /// <returns></returns>
-        public Thread CreateThread()
-        {
-            Thread newThread = new Thread(_NextThreadId++, this);
-            _RunningThreads.Add(newThread);
-            return newThread;
-        }
-
-        /// <summary>
-        /// Creates a thread with no parameters to the main function
-        /// </summary>
-        /// <param name="threadFunction"></param>
-        /// <param name="This"></param>
-        /// <returns></returns>
-        public Thread CreateThread(FunctionObject threadFunction, Variable This)
-        {
-            Thread newThread = new Thread(_NextThreadId++, this, threadFunction);
-            // TODO: Notify of thread creation
-            _RunningThreads.Add(newThread);
-            newThread.Push(This);// push this
-            newThread.PushFunction(threadFunction);
-            newThread.PushStackFrame(0);
-            return newThread;
-        }
-        /// <summary>
-        /// Creates a thread with no parameters to the main function and Null passed as This
-        /// </summary>
-        /// <param name="threadFunction"></param>
-        /// <returns></returns>
-        public Thread CreateThread(FunctionObject threadFunction)
-        {
-            return CreateThread(threadFunction, new Variable());
-        }
-        #endregion
-        #endregion
-
-
-
-        public void SetGlobal(string globalName, Variable value)
-        {
-            _Globals[new Variable(globalName)] = value;
-        }
-
-        public void SetGlobal(int globalId, Variable value)
-        {
-           _Globals[globalId] = value;
         }
 
         public TableObject Globals
@@ -95,181 +56,221 @@ namespace GreenBeanScript
         }
 
 
-        #region Execute Methods
-        public void ExecuteLibrary(Library Lib)
+        public void SetGlobal(string globalName, Variable value)
         {
-            GreenBeanScript.Thread thread = CreateThread(Lib.MainFunction);
-            thread.Execute();
+            _Globals[new Variable(globalName)] = value;
         }
 
-        public int Execute(float Delta)
+        public void SetGlobal(int globalId, Variable value)
         {
-            // Todo: Handle waking up threads
-
-            // Todo: Handle moving pending blocked threads to new threads
-
-            // Todo: Run each running thread
-            for (int i = 0; i < _RunningThreads.Count; ++i)
-            {
-                Thread t = _RunningThreads[i];
-                t.Execute();
-            }
-
-            return 0;
+            _Globals[globalId] = value;
         }
-        #endregion
 
-        public int SetBlocks(Thread ScriptThread, Variable[] Blocks)
+        public int SetBlocks(Thread scriptThread, Variable[] blocks)
         {
             // TODO:
 
             return 0;
         }
 
-        internal void SwitchThreadState(Thread ScriptThread, ThreadState State)
+        internal void SwitchThreadState(Thread scriptThread, ThreadState state)
         {
             // Return immediately if they're the same state
-            if (ScriptThread.State == State)
+            if (scriptThread.State == state)
                 return;
-            switch (ScriptThread.State)
+            switch (scriptThread.State)
             {
                 case ThreadState.Running:
-                    {
-                        // Todo: Remove signals
-                        // If this thread is running, remove from running list
-                        _RunningThreads.Remove(ScriptThread);
-                        break;
-                    }
-                case ThreadState.Blocked:
-                case ThreadState.Sys_Pending:
-                    {
-                        // Todo: Remove blocks
-                        _BlockedThreads.Remove(ScriptThread);
-                        break;
-                    }
-                case ThreadState.Sleeping:
-                    {
-                        _SleepingThreads.Remove(ScriptThread);
-                        break;
-                    }
-                case ThreadState.Killed:
-                    {
-                        _KilledThreads.Remove(ScriptThread);
-                        break;
-                    }
-                case ThreadState.Exception:
-                    {
-                        _ExceptionThreads.Remove(ScriptThread);
-                        break;
-                    }
-                default:
-                    {
-                        throw new Exception("TODO: This shouldn't happen");
-                    }
+                {
+                    // Todo: Remove signals
+                    // If this thread is running, remove from running list
+                    RunningThreads.Remove(scriptThread);
+                    break;
                 }
+                case ThreadState.Blocked:
+                case ThreadState.SysPending:
+                {
+                    // Todo: Remove blocks
+                    BlockedThreads.Remove(scriptThread);
+                    break;
+                }
+                case ThreadState.Sleeping:
+                {
+                    SleepingThreads.Remove(scriptThread);
+                    break;
+                }
+                case ThreadState.Killed:
+                {
+                    KilledThreads.Remove(scriptThread);
+                    break;
+                }
+                case ThreadState.Exception:
+                {
+                    ExceptionThreads.Remove(scriptThread);
+                    break;
+                }
+                default:
+                {
+                    throw new Exception("TODO: This shouldn't happen");
+                }
+            }
 
-            switch (State)
+            switch (state)
             {
                 case ThreadState.Running:
-                    {
-                        _RunningThreads.Add(ScriptThread);
-                        break;
-                    }
+                {
+                    RunningThreads.Add(scriptThread);
+                    break;
+                }
                 case ThreadState.Blocked:
-                    {
-                        _BlockedThreads.Add(ScriptThread);
-                        break;
-                    }
+                {
+                    BlockedThreads.Add(scriptThread);
+                    break;
+                }
                 case ThreadState.Sleeping:
-                    {
-                        _SleepingThreads.Add(ScriptThread);
-                        break;
-                    }
+                {
+                    SleepingThreads.Add(scriptThread);
+                    break;
+                }
                 case ThreadState.Killed:
-                    {
-                        ScriptThread.SetState(ThreadState.Killed);
-                        // Todo: Machine thread killed callback
-                        _KilledThreads.Add(ScriptThread);
-                        return;
-                    }
+                {
+                    scriptThread.SetState(ThreadState.Killed);
+                    // Todo: Machine thread killed callback
+                    KilledThreads.Add(scriptThread);
+                    return;
+                }
                 case ThreadState.Exception:
-                    {
-                        _ExceptionThreads.Add(ScriptThread);
-                        break;
-                    }
+                {
+                    ExceptionThreads.Add(scriptThread);
+                    break;
+                }
                 default:
-                    {
-                        throw new Exception("Invalid State");
-                    }
+                {
+                    throw new Exception("Invalid State");
+                }
             }
 
             // Set the thread's internal state
-            ScriptThread.SetState(State);
+            scriptThread.SetState(state);
         }
 
-        public ScriptType RegisterType(string TypeName)
+        public ScriptType RegisterType(string typeName)
         {
-            if (_TypeNameLookups.ContainsKey(TypeName))
-            {
+            if (TypeNameLookups.ContainsKey(typeName))
                 throw new Exception("Type already registered");
-            }
 
-            ScriptType type = new ScriptType(TypeName, _NextTypeId++);
-            _TypeNameLookups[TypeName] = type;
+            var type = new ScriptType(typeName, NextTypeId++);
+            TypeNameLookups[typeName] = type;
             return type;
         }
 
-        public OperatorCallback GetTypeOperator(int TypeId, Operator Op)
+        public OperatorCallback GetTypeOperator(int typeId, Operator op)
         {
-            if (!_typeIdLookups.Contains(TypeId))
+            if (!_typeIdLookups.Contains(typeId))
                 return null;
 
-            return _typeIdLookups[TypeId].GetOperator(Op);
+            return _typeIdLookups[typeId].GetOperator(op);
         }
 
-        public TypeIteratorCallback GetTypeIterator(int TypeId)
+        public TypeIteratorCallback GetTypeIterator(int typeId)
         {
-            if (!_typeIdLookups.Contains(TypeId))
+            if (!_typeIdLookups.Contains(typeId))
                 return null;
 
-            return _typeIdLookups[TypeId].GetIterator();
+            return _typeIdLookups[typeId].GetIterator();
         }
 
-        public void RegisterFunction(string FunctionName, NativeFunctionCallback Function)
+        public void RegisterFunction(string functionName, NativeFunctionCallback function)
         {
-            SetGlobal(FunctionName, new Variable(new FunctionObject(Function)));
+            SetGlobal(functionName, new Variable(new FunctionObject(function)));
         }
 
-        public void RegisterType(string TypeName, int TypeId, TypeOperators Operators)
+        public void RegisterType(string typeName, int typeId, ITypeOperators operators)
         {
-            ScriptType Type = new ScriptType(TypeName, TypeId);
-            Operators.Initialise(this, Type);
-            _typeIdLookups.Add(Type);
-            _TypeNameLookups[Type.TypeName] = Type;
+            var type = new ScriptType(typeName, typeId);
+            operators.Initialise(this, type);
+            _typeIdLookups.Add(type);
+            TypeNameLookups[type.TypeName] = type;
         }
 
         protected void InitialiseDefaultTypes()
         {
-            RegisterType("int", (int)VariableType.Integer, new IntegerOperators.OpCallbacks());
-            RegisterType("float", (int)VariableType.Float, new FloatOperators.OperatorCallbacks());
-            RegisterType("string", (int)VariableType.String, new StringOperators.OperatorCallbacks());
-            RegisterType("table", (int)VariableType.Table, new TableOperators.OperatorCallbacks());  
+            RegisterType("int", (int) VariableType.Integer, new IntegerOperators());
+            RegisterType("float", (int) VariableType.Float, new FloatOperators());
+            RegisterType("string", (int) VariableType.String, new StringOperators());
+            RegisterType("table", (int) VariableType.Table, new TableOperators());
         }
 
-        protected Dictionary<string, ScriptType> _TypeNameLookups = new Dictionary<string, ScriptType>();
-        //protected Dictionary<int, ScriptType> _TypeIdLookups = new Dictionary<int, ScriptType>();
-        readonly ScriptTypeCollection _typeIdLookups = new ScriptTypeCollection();
+        #region Create Object Methods
 
-        protected List<Thread> _RunningThreads = new List<Thread>();
-        protected List<Thread> _KilledThreads = new List<Thread>();
-        protected List<Thread> _BlockedThreads = new List<Thread>();
-        protected List<Thread> _ExceptionThreads = new List<Thread>();
-        protected List<Thread> _SleepingThreads = new List<Thread>();
+        #region Thread Functions
 
-        protected int _NextThreadId = 1;
-        protected int _NextTypeId;
-        //protected Stack<Variable> _Stack = new Stack<Variable>();
-        protected Log _Log;
-        protected TableObject _Globals;
+        /// <summary>
+        ///     Creates a basic thread
+        /// </summary>
+        /// <returns></returns>
+        public Thread CreateThread()
+        {
+            var newThread = new Thread(NextThreadId++, this);
+            RunningThreads.Add(newThread);
+            return newThread;
+        }
+
+        /// <summary>
+        ///     Creates a thread with no parameters to the main function
+        /// </summary>
+        /// <param name="threadFunction"></param>
+        /// <param name="This"></param>
+        /// <returns></returns>
+        public Thread CreateThread(FunctionObject threadFunction, Variable This)
+        {
+            var newThread = new Thread(NextThreadId++, this, threadFunction);
+            // TODO: Notify of thread creation
+            RunningThreads.Add(newThread);
+            newThread.Push(This); // push this
+            newThread.PushFunction(threadFunction);
+            newThread.PushStackFrame(0);
+            return newThread;
+        }
+
+        /// <summary>
+        ///     Creates a thread with no parameters to the main function and Null passed as This
+        /// </summary>
+        /// <param name="threadFunction"></param>
+        /// <returns></returns>
+        public Thread CreateThread(FunctionObject threadFunction)
+        {
+            return CreateThread(threadFunction, new Variable());
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Execute Methods
+
+        public void ExecuteLibrary(Library lib)
+        {
+            var thread = CreateThread(lib.MainFunction);
+            thread.Execute();
+        }
+
+        public int Execute(float delta)
+        {
+            // Todo: Handle waking up threads
+
+            // Todo: Handle moving pending blocked threads to new threads
+
+            // Todo: Run each running thread
+            for (var i = 0; i < RunningThreads.Count; ++i)
+            {
+                var t = RunningThreads[i];
+                t.Execute();
+            }
+
+            return 0;
+        }
+
+        #endregion
     }
 }

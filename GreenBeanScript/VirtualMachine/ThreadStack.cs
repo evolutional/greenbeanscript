@@ -1,11 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GreenBeanScript.VirtualMachine
+﻿namespace GreenBeanScript.VirtualMachine
 {
     public class ThreadStack
     {
+        private readonly Variable[] _stack = new Variable[16384]; // Stack
+
+
+        public int StackPointer { get; set; }
+
+        public int BasePointer { get; set; }
+
         public void Push(Variable var)
         {
             _stack[StackPointer++] = var;
@@ -31,7 +34,7 @@ namespace GreenBeanScript.VirtualMachine
         {
             return _stack[StackPointer];
         }
-        
+
         public void PokeAbs(int offset, Variable val)
         {
             _stack[offset] = val;
@@ -61,12 +64,5 @@ namespace GreenBeanScript.VirtualMachine
         {
             _stack[BasePointer + offsetFromBase] = val;
         }
-
-
-        public int StackPointer { get; set; }
-
-        public int BasePointer { get; set; }
-
-        private readonly Variable[] _stack = new Variable[16384];   // Stack
     }
 }

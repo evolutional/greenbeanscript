@@ -1,82 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace GreenBeanScript
+namespace GreenBeanScript.VirtualMachine
 {
-    public class TableNode
+    public class TableObject
     {
-        public TableNode(Variable Key, Variable Item)
-        {
-            this.Key = Key; this.Item = Item;
-        }
-        public Variable Key;
-        public Variable Item;
-    }
-
-    public class TableObject 
-    {
-
-        public Variable this[Variable Index]
+        public Variable this[Variable index]
         {
             get
             {
-                Variable i = Index;
+                var i = index;
                 return Get(ref i);
             }
             set
             {
-                Variable i = Index;
+                var i = index;
                 Set(ref i, ref value);
             }
         }
 
-        public void Set(ref Variable Key, ref Variable Value)
+        public void Set(ref Variable key, ref Variable value)
         {
-            if (Key.IsInt)
+            if (key.IsInt)
             {
-                if (Value.IsNull)
-                {
-                    _IndexedItems.Remove(Key.GetIntegerNoCheck());
-                }
+                if (value.IsNull)
+                    IndexedItems.Remove(key.GetIntegerNoCheck());
                 else
-                {
-                    _IndexedItems[Key.GetIntegerNoCheck()] = Value;
-                }
+                    IndexedItems[key.GetIntegerNoCheck()] = value;
 
                 return;
             }
 
-            if (Value.IsNull)
-            {
-                _HashedItems.Remove(Key);
-            }
+            if (value.IsNull)
+                HashedItems.Remove(key);
             else
-            {
-                _HashedItems[Key] = Value;
-            }
-
+                HashedItems[key] = value;
         }
 
-        public Variable Get(ref Variable Key)
+        public Variable Get(ref Variable key)
         {
-            if (Key.IsNull)
+            if (key.IsNull)
                 return new Variable();
 
             Variable ret;
-            if (Key.IsInt)
-            {                
-                if (_IndexedItems.TryGetValue(Key.GetIntegerNoCheck(),out ret))
-                {
+            if (key.IsInt)
+            {
+                if (IndexedItems.TryGetValue(key.GetIntegerNoCheck(), out ret))
                     return ret;
-                }
                 return new Variable();
             }
 
-            if (_HashedItems.TryGetValue(Key, out ret))
-            {
+            if (HashedItems.TryGetValue(key, out ret))
                 return ret;
-            }
             return new Variable();
         }
 
@@ -100,7 +74,7 @@ namespace GreenBeanScript
             }
         }
 #endif
- 
+
         public TableNode GetFirst()
         {
 #if ZERO
@@ -120,13 +94,14 @@ namespace GreenBeanScript
 #endif
             return null;
         }
-        public TableNode GetNext(int IteratorPos)
+
+        public TableNode GetNext(int iteratorPos)
         {
-            if (IteratorPos == 0)
+            if (iteratorPos == 0)
                 return GetFirst();
 
-            int pos = -1;
 #if ZERO
+            var pos = -1;
             if (IteratorPos < _IndexedItems.Count)
             {
                 Dictionary<int, Variable>.Enumerator e = _IndexedItems.GetEnumerator();         
@@ -148,16 +123,15 @@ namespace GreenBeanScript
             }
 #endif
             return null;
-
         }
 
         public int Count
         {
-            get { return _IndexedItems.Count + _HashedItems.Count; }
+            get { return IndexedItems.Count + HashedItems.Count; }
         }
 
-     //   protected Dictionary<Variable, Variable> _Items = new Dictionary<Variable, Variable>();
-        protected Dictionary<int, Variable> _IndexedItems = new Dictionary<int,Variable>();
-        protected Dictionary<Variable, Variable> _HashedItems = new Dictionary<Variable,Variable>();
+        //   protected Dictionary<Variable, Variable> _Items = new Dictionary<Variable, Variable>();
+        protected Dictionary<int, Variable> IndexedItems = new Dictionary<int, Variable>();
+        protected Dictionary<Variable, Variable> HashedItems = new Dictionary<Variable, Variable>();
     }
 }

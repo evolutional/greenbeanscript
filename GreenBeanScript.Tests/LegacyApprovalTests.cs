@@ -1,24 +1,20 @@
 ﻿using System;
-using System.IO;
 using System.Text;
 using ApprovalTests;
 using ApprovalTests.Reporters;
-using FluentAssertions;
 using GreenBeanScript.Libs;
+using GreenBeanScript.VirtualMachine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GreenBeanScript.Tests
 {
     [TestClass]
-    [UseReporter(typeof (DiffReporter))]
+    [UseReporter(typeof(DiffReporter))]
     public class LegacyApprovalTests
     {
         private void Do(StringBuilder log, string libFileName)
         {
-            Action<string> printFunc = (s) =>
-            {
-                log.AppendLine(s);
-            };
+            Action<string> printFunc = s => { log.AppendLine(s); };
             var stdLib = new StdLibrary(printFunc);
             var uut = new Machine(stdLib);
             var newLib = new Library();
